@@ -6,10 +6,9 @@
 
 #include <boost\filesystem.hpp>
 
-#include "FileCommons.h"
+#include "FileProcessing.h"
 #include "Filetype_CAT.h"
 
-using boost::filesystem::path;
 
 class ResourceDumper {
 public:
@@ -21,23 +20,23 @@ public:
 	void dump(std::initializer_list<std::string> resource_name, blob_t data);
 	void dump(std::initializer_list<std::string> resource_name, const char* data, uint32_t count);
 	
-	path& outputPrefix() {
+	boost::filesystem::path& outputPrefix() {
 		return _outputPrefix;
 	}
 
-	const path& outputPrefix() const {
+	const boost::filesystem::path& outputPrefix() const {
 		return _outputPrefix;
 	}
 
-	path& outputPostfix() {
+	boost::filesystem::path& outputPostfix() {
 		return _outputPostfix;
 	}
 
-	const path& outputPostfix() const {
+	const boost::filesystem::path& outputPostfix() const {
 		return _outputPostfix;
 	}
 
 private:
-	path _outputPrefix;
-	path _outputPostfix;
+	boost::filesystem::path _outputPrefix;
+	boost::filesystem::path _outputPostfix;
 };

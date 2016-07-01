@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 
-void readFilenames(std::ifstream& file, std::vector<std::string>& filenames_out) {
+void readFilenames(std::istream& file, std::vector<std::string>& filenames_out) {
 	Filename_Header header;
 	read(file, &header);
 	const std::streamoff offset_base = file.tellg();
@@ -23,7 +23,7 @@ void readFilenames(std::ifstream& file, std::vector<std::string>& filenames_out)
 }
 
 template<>
-void read(std::ifstream& file, Filename_Header* dst) {
+void read(std::istream& file, Filename_Header* dst) {
 	read(file, &(dst->unknown_0));
 	read(file, &(dst->unknown_1));
 	read(file, &(dst->unknown_2));

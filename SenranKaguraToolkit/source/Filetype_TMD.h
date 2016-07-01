@@ -40,19 +40,19 @@ struct TMD_Header {
 };
 
 template<>
-void read(std::ifstream& file, TMD_Range* dst);
+void read(std::istream& file, TMD_Range* dst);
 
 template<>
-void read(std::ifstream& file, FeatureLevel* dst);
+void read(std::istream& file, FeatureLevel* dst);
 
 template<>
-void read(std::ifstream& file, TMD_Bounds* dst);
+void read(std::istream& file, TMD_Bounds* dst);
 
 
 template<>
-void read(std::ifstream& file, TMD_Header* dst);
+void read(std::istream& file, TMD_Header* dst);
 
 
 
-void processTMD(std::ifstream& file);
+void processTMD(std::istream& file);
 

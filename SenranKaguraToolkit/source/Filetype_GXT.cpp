@@ -1,17 +1,16 @@
 #include "Filetype_GXT.h"
 
-#include <fstream>
 #include <assert.h>
 #include <iterator>
 #include <ios>
 
 #include "FileProcessing.h"
 
-void processGXT(std::ifstream& file, const std::streamoff gxt_start, const std::vector<CAT_Resource_Entry::Sub_Entry>& sub_entries, std::vector<GXT_Entry>& entries_out) {
-	
+void processGXT(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT_Resource_Entry::Sub_Entry>& sub_entries, std::vector<GXT_Entry>& entries_out) {
 	file.seekg(gxt_start, std::ios::beg);
 
-	GXT_Header header{ 0, 0, 0 };
+	// Read Header
+	GXT_Header header;
 	read(file, &header.size);
 	read(file, &header.resource_count);
 	read(file, &header.container_size);
@@ -19,15 +18,16 @@ void processGXT(std::ifstream& file, const std::streamoff gxt_start, const std::
 	// These Counts should match
 	assert(header.resource_count == sub_entries.size());
 
-	for (auto res(0); res < header.resource_count; res++) {
+	// Read Offsets
+	for (auto res(0U); res < header.resource_count; res++) {
 		header.offsets.push_back(read<uint32_t>(file));
 	}
 
-
+	// Read Data into Container
 	file.seekg(header.size + gxt_start, std::ios::beg);
 	const std::streamoff offset_base = file.tellg();
 	const std::streamoff data_end = offset_base + header.container_size;
-	for (auto res(0); res < header.resource_count; res++) {
+	for (auto res(0U); res < header.resource_count; res++) {
 		const std::streamoff resource_start = offset_base + header.offsets[res];
 		std::streamoff resource_size = 0;
 		if (res == header.resource_count - 1) {

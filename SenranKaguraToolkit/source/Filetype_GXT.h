@@ -4,19 +4,19 @@
 #include <vector>
 #include <iosfwd>
 
-#include "FileCommons.h"
+#include "FileProcessing.h"
 #include "Filetype_CAT.h"
 
+// Varibale Length Header of a GXT-File
 struct GXT_Header {
-	// Size of the Header (bytes)
 	uint32_t					size;
 	uint32_t					resource_count;
 	uint32_t					container_size;
-	// Absolute Offsets which point to Chunks
 	std::vector<uint32_t>		offsets;
 };
 
 
+// A GXT-Resource Entry
 struct GXT_Entry {
 	std::string package;
 	std::string resource;
@@ -24,4 +24,6 @@ struct GXT_Entry {
 	blob_t data;
 };
 
-void processGXT(std::ifstream& file, const std::streamoff gxt_start, const std::vector<CAT_Resource_Entry::Sub_Entry>& sub_entries, std::vector<GXT_Entry>& entries_out);
+// Read the Contents of a GXT-File
+// Stores the Content of all found Entries into a given Vector
+void processGXT(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT_Resource_Entry::Sub_Entry>& sub_entries, std::vector<GXT_Entry>& entries_out);

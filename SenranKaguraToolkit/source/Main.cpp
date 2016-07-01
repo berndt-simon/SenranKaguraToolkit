@@ -58,26 +58,7 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 
 		std::cout << "Contend of File:" << std::endl;
 		for (auto fn_itter(filenames.begin()); fn_itter != filenames.end(); fn_itter++) {
-
-#define EXPLORE_TYPES
-#ifdef EXPLORE_TYPES
-			boost::filesystem::path abs_file = parent;
-			abs_file.append(*fn_itter);
-			if (boost::filesystem::is_regular_file(abs_file)) {
-				std::string abs_file_lc = abs_file.string();
-				std::transform(abs_file_lc.begin(), abs_file_lc.end(), abs_file_lc.begin(), tolower);
-				if (hasEnding(abs_file_lc, ".cat")) {
-					std::cout << "\t" << abs_file << std::endl;
-					std::ifstream cat_file;
-					openToRead(cat_file, abs_file.string());
-					std::vector<CAT_Resource_Entry> cat_entries;
-					processCAT(cat_file, cat_entries);
-					cat_file.close();
-				}
-			}
-#else
 			std::cout << "\t" << *fn_itter << std::endl;
-#endif // EXPLORE_TYPES
 		}
 	}
 }

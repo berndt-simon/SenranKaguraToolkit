@@ -33,9 +33,6 @@
     <ClInclude Include="source\ResourceDumper.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="source\FileCommons.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Main.cpp">

@@ -1,22 +1,20 @@
 #include "Filetype_TMD.h"
 
 #include "FileProcessing.h"
-#include <fstream>
-
 
 template<>
-void read(std::ifstream& file, TMD_Range* dst) {
+void read(std::istream& file, TMD_Range* dst) {
 	read(file, &(dst->start));
 	read(file, &(dst->count));
 }
 
 template<>
-void read(std::ifstream& file, FeatureLevel* dst) {
+void read(std::istream& file, FeatureLevel* dst) {
 	read(file, &(dst->as_short));
 }
 
 template<>
-void read(std::ifstream& file, TMD_Bounds* dst) {
+void read(std::istream& file, TMD_Bounds* dst) {
 	read(file, &(dst->min.x));
 	read(file, &(dst->min.y));
 	read(file, &(dst->min.z));
@@ -26,7 +24,7 @@ void read(std::ifstream& file, TMD_Bounds* dst) {
 }
 
 template<>
-void read(std::ifstream& file, TMD_Header* dst) {
+void read(std::istream& file, TMD_Header* dst) {
 	read(file, &(dst->magic_number));
 	read(file, &(dst->unknown_0));
 	read(file, &(dst->feature_level)); 
@@ -50,7 +48,7 @@ void read(std::ifstream& file, TMD_Header* dst) {
 	read(file, &(dst->blank));
 }
 
-void processTMD(std::ifstream& file) {
+void processTMD(std::istream& file) {
 	const std::streampos fileStart = file.tellg();
 
 	TMD_Header header;

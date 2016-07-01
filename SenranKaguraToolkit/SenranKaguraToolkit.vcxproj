@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\FileCommons.h" />
     <ClInclude Include="source\Filename.h" />
     <ClInclude Include="source\FileProcessing.h" />
     <ClInclude Include="source\Filetype_CAT.h" />
