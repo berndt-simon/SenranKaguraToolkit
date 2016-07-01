@@ -8,6 +8,7 @@
 
 #include "Filetype_CAT.h"
 #include "Filetype_GXT.h"
+#include "Filetype_TMD.h"
 #include "Filename.h"
 
 #include "ResourceDumper.h"
@@ -33,15 +34,51 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 		std::vector<CAT_Resource_Entry> cat_entries;
 		processCAT(file, cat_entries);
 		for (auto entryItter(cat_entries.begin()); entryItter != cat_entries.end(); entryItter++) {
-			if (entryItter->type == CAT_Resource_Entry::GXT) {
-				std::vector<GXT_Entry> gxt_entries;
-				processGXT(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
-				ResourceDumper dumper;
-				dumper.outputPrefix() = out_folder;
-				dumper.outputPostfix() = ".dds";
-				for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
-					dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+			switch (entryItter->type) {
+				case CAT_Resource_Entry::GXT:
+				{
+					std::vector<GXT_Entry> gxt_entries;
+					processGXT(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
+					ResourceDumper dumper;
+					dumper.outputPrefix() = out_folder;
+					dumper.outputPostfix() = ".dds";
+					for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
+						dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+					}
 				}
+				break;
+				case CAT_Resource_Entry::TMD:
+				case CAT_Resource_Entry::TMD_TOON:
+				{
+					TMD_Data tmd_data;
+					processTMD(file, entryItter->offset, entryItter->sub_entries, tmd_data);
+					std::ofstream obj_out;
+					openToWrite(obj_out, "tmd.obj");
+					obj_out << std::dec;
+					obj_out << "# Converted TMD" << std::endl;
+					obj_out << "o TMD_Object" << std::endl;
+					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
+						obj_out << "v " 
+							<< vItt->pos.x << " " 
+							<< vItt->pos.y << " " 
+							<< vItt->pos.z << " " << std::endl;
+						obj_out << "vt " 
+							<< static_cast<float>(vItt->tex.u) << " " 
+							<< static_cast<float>(vItt->tex.v) << std::endl;
+						obj_out << "vn " 
+							<< static_cast<float>(vItt->normal.x) << " " 
+							<< static_cast<float>(vItt->normal.y) << " " 
+							<< static_cast<float>(vItt->normal.z) << " " << std::endl;
+					}
+					for (auto fItt(tmd_data.faces.begin()); fItt != tmd_data.faces.end(); fItt++) {
+						obj_out << "f ";
+						obj_out << fItt->f0 + 1 << "/" << fItt->f0 + 1 << "/" << fItt->f0 + 1 << " ";
+						obj_out << fItt->f1 + 1 << "/" << fItt->f1 + 1 << "/" << fItt->f1 + 1 << " ";
+						obj_out << fItt->f2 + 1 << "/" << fItt->f2 + 1 << "/" << fItt->f2 + 1 << std::endl;
+					}
+					obj_out.close();
+				}
+				break;
 			}
 		}
 		file.close();
