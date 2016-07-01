@@ -18,6 +18,4 @@ T read(std::ifstream& file) {
 	return buffer;
 }
 
-void open(std::ifstream& file, const std::string& filename);
-
-void reportAndThrow(const std::string& msg);
+void openToRead(std::ifstream& file, const std::string& filename);

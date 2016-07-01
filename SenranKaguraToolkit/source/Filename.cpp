@@ -2,11 +2,30 @@
 
 #include "FileProcessing.h"
 #include <fstream>
+#include <string>
 
-std::unique_ptr<std::vector<std::string>> readFilenames(std::ifstream& file) {
-	std::unique_ptr<std::vector<std::string>> filenames = std::make_unique<std::vector<std::string>>();
+void readFilenames(std::ifstream& file, std::vector<std::string>& filenames_out) {
 	Filename_Header header;
 	read(file, &header);
+	const std::streamoff offset_base = file.tellg();
+	std::vector<uint32_t> offsets;
+	do {
+		offsets.push_back(read<uint32_t>(file));
+	} while (file.tellg() < offset_base + offsets.front());
 
-	return filenames;
+	for (auto off_itter(offsets.begin()); off_itter != offsets.end(); off_itter++) {
+		file.seekg(offset_base + *off_itter, std::ios::beg);
+		std::string filename;
+		std::getline(file, filename, static_cast<char>(0));
+		filenames_out.push_back(filename);
+	}
+
+}
+
+template<>
+void read(std::ifstream& file, Filename_Header* dst) {
+	read(file, &(dst->unknown_0));
+	read(file, &(dst->unknown_1));
+	read(file, &(dst->unknown_2));
+	read(file, &(dst->unknown_3));
 }

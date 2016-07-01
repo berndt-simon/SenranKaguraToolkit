@@ -7,7 +7,10 @@
 #include <fstream>
 
 #include "Filetype_CAT.h"
+#include "Filetype_GXT.h"
 #include "Filename.h"
+
+#include "ResourceDumper.h"
 
 
 bool hasEnding(const std::string& string, const std::string& ending) {
@@ -18,29 +21,80 @@ bool hasEnding(const std::string& string, const std::string& ending) {
 	}
 }
 
+void process(const boost::filesystem::path& in_file, boost::filesystem::path out_folder) {
+
+	std::cout << "Try to load '" << in_file << "'..." << std::endl;
+	std::string filename_lc = in_file.string();
+	std::transform(filename_lc.begin(), filename_lc.end(), filename_lc.begin(), tolower);
+	if (hasEnding(filename_lc, ".cat")) {
+		std::cout << "'" << in_file << "' seems to be a CAT-File." << std::endl;
+		std::ifstream file;
+		openToRead(file, in_file.string());
+		std::vector<CAT_Resource_Entry> cat_entries;
+		processCAT(file, cat_entries);
+		for (auto entryItter(cat_entries.begin()); entryItter != cat_entries.end(); entryItter++) {
+			if (entryItter->type == CAT_Resource_Entry::GXT) {
+				std::vector<GXT_Entry> gxt_entries;
+				processGXT(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
+				ResourceDumper dumper;
+				dumper.outputPrefix() = out_folder;
+				dumper.outputPostfix() = ".dds";
+				for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
+					dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+				}
+			}
+		}
+		file.close();
+	}
+	if (hasEnding(filename_lc, "filename.bin")) {
+		std::cout << "'" << in_file << "' seems to be the Filename-File." << std::endl;
+		std::ifstream file;
+		openToRead(file, in_file.string());
+		std::vector<std::string> filenames;
+		readFilenames(file, filenames);
+		file.close();
+
+		const boost::filesystem::path parent = in_file.parent_path();
+
+		std::cout << "Contend of File:" << std::endl;
+		for (auto fn_itter(filenames.begin()); fn_itter != filenames.end(); fn_itter++) {
+
+#define EXPLORE_TYPES
+#ifdef EXPLORE_TYPES
+			boost::filesystem::path abs_file = parent;
+			abs_file.append(*fn_itter);
+			if (boost::filesystem::is_regular_file(abs_file)) {
+				std::string abs_file_lc = abs_file.string();
+				std::transform(abs_file_lc.begin(), abs_file_lc.end(), abs_file_lc.begin(), tolower);
+				if (hasEnding(abs_file_lc, ".cat")) {
+					std::cout << "\t" << abs_file << std::endl;
+					std::ifstream cat_file;
+					openToRead(cat_file, abs_file.string());
+					std::vector<CAT_Resource_Entry> cat_entries;
+					processCAT(cat_file, cat_entries);
+					cat_file.close();
+				}
+			}
+#else
+			std::cout << "\t" << *fn_itter << std::endl;
+#endif // EXPLORE_TYPES
+		}
+	}
+}
+
 int main(int argc, char** argv) {
 
 	TCLAP::CmdLine cmd("Senran Kagura Shinobi Versus Toolkit", ' ', "0.42");
-	TCLAP::ValueArg<std::string> file("i", "input-file", "Input-File", true, "", "string");
-	cmd.add(file);
+	TCLAP::ValueArg<std::string> inFileArg("i", "input-file", "Input-File", true, "", "string");
+	TCLAP::ValueArg<std::string> outFolderArg("o", "output-folder", "Output-Folder", false, "out", "string");
+	cmd.add(inFileArg);
+	cmd.add(outFolderArg);
 	cmd.parse(argc, argv);
 
-	std::cout << "Try to load '" << file.getValue() << "'..." << std::endl;
-	const std::string& filename = file.getValue();
-	std::string filename_lc = filename;
-	std::transform(filename_lc.begin(), filename_lc.end(), filename_lc.begin(), tolower);
-	if (hasEnding(filename_lc, ".cat")) {
-		std::cout << "'" << filename << "' seems to be a CAT-File." << std::endl;
-		std::ifstream file;
-		open(file, filename);
-		processCAT(file);
-	}
-	if (hasEnding(filename_lc, ".bin")) {
-		std::cout << "'" << filename << "' seems to be a Bin-File." << std::endl;
-		std::ifstream file;
-		open(file, filename);
-		readFilenames(file);
-	}
+	boost::filesystem::path inFile(inFileArg.getValue());
+	boost::filesystem::path outFolder(outFolderArg.getValue());
+
+	process(inFile, outFolder);
 
 	std::cin.ignore();
 	return EXIT_SUCCESS;
