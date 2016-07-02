@@ -13,7 +13,7 @@
 class ResourceDumper {
 public:
 	ResourceDumper()
-		:_outputPrefix(), _outputPostfix() {
+		:_output_prefix(), _output_postfix() {
 	};
 	~ResourceDumper() = default;
 
@@ -21,22 +21,22 @@ public:
 	void dump(std::initializer_list<std::string> resource_name, const char* data, uint32_t count);
 	
 	boost::filesystem::path& outputPrefix() {
-		return _outputPrefix;
+		return _output_prefix;
 	}
 
 	const boost::filesystem::path& outputPrefix() const {
-		return _outputPrefix;
+		return _output_prefix;
 	}
 
 	boost::filesystem::path& outputPostfix() {
-		return _outputPostfix;
+		return _output_postfix;
 	}
 
 	const boost::filesystem::path& outputPostfix() const {
-		return _outputPostfix;
+		return _output_postfix;
 	}
 
 private:
-	boost::filesystem::path _outputPrefix;
-	boost::filesystem::path _outputPostfix;
+	boost::filesystem::path _output_prefix;
+	boost::filesystem::path _output_postfix;
 };

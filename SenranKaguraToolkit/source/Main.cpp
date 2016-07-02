@@ -31,61 +31,61 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 		std::cout << "'" << in_file << "' seems to be a CAT-File." << std::endl;
 		std::ifstream file;
 		openToRead(file, in_file.string());
-		std::vector<CAT_Resource_Entry> cat_entries;
-		processCAT(file, cat_entries);
+		std::vector<CAT::ResourceEntry_t> cat_entries;
+		CAT::load(file, cat_entries);
 		for (auto entryItter(cat_entries.begin()); entryItter != cat_entries.end(); entryItter++) {
 			switch (entryItter->type) {
-				case CAT_Resource_Entry::GXT:
-				{
-					std::vector<GXT_Entry> gxt_entries;
-					processGXT(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
-					ResourceDumper dumper;
-					dumper.outputPrefix() = out_folder;
-					dumper.outputPostfix() = ".dds";
-					for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
-						dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+				case CAT::ResourceEntry_t::GXT:
+					{
+						std::vector<GXT::Entry_t> gxt_entries;
+						GXT::load(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
+						ResourceDumper dumper;
+						dumper.outputPrefix() = out_folder;
+						dumper.outputPostfix() = ".dds";
+						for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
+							dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+						}
 					}
-				}
-				break;
-				case CAT_Resource_Entry::TMD:
-				case CAT_Resource_Entry::TMD_TOON:
-				{
-					TMD_RAW_Data tmd_data;
-					processTMD(file, entryItter->offset, tmd_data);
-					std::ofstream obj_out;
-					openToWrite(obj_out, "tmd.obj");
-					obj_out << std::dec;
-					obj_out << "# Converted TMD" << std::endl;
-					obj_out << "o TMD_Object" << std::endl;
+					break;
+				case CAT::ResourceEntry_t::TMD:
+				case CAT::ResourceEntry_t::TMD_TOON:
+					{
+						TMD::RAW::Data_t tmd_data;
+						TMD::load_raw(file, entryItter->offset, tmd_data);
+						std::ofstream obj_out;
+						openToWrite(obj_out, "tmd.obj");
+						obj_out << std::dec;
+						obj_out << "# Converted TMD" << std::endl;
+						obj_out << "o TMD_Object" << std::endl;
 
-					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-						obj_out << "v "
-							<< vItt->pos[0] << " "
-							<< vItt->pos[1] << " "
-							<< vItt->pos[2] << " " << std::endl;
-					}
-					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-						obj_out << "vt "
-							<< static_cast<float>(vItt->tex[0]) / 1024 << " "
-							<< static_cast<float>(vItt->tex[1]) / -1024 << std::endl;
-					}
-					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-						obj_out << "vn "
-							<< static_cast<float>(vItt->normal[0]) << " "
-							<< static_cast<float>(vItt->normal[1]) << " "
-							<< static_cast<float>(vItt->normal[2]) << " " << std::endl;
-					}
-					
+						for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
+							obj_out << "v "
+								<< vItt->pos[0] << " "
+								<< vItt->pos[1] << " "
+								<< vItt->pos[2] << " " << std::endl;
+						}
+						for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
+							obj_out << "vt "
+								<< static_cast<float>(vItt->tex[0]) / 1024 << " "
+								<< static_cast<float>(vItt->tex[1]) / -1024 << std::endl;
+						}
+						for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
+							obj_out << "vn "
+								<< static_cast<float>(vItt->normal[0]) << " "
+								<< static_cast<float>(vItt->normal[1]) << " "
+								<< static_cast<float>(vItt->normal[2]) << " " << std::endl;
+						}
 
-					for (auto fItt(tmd_data.faces.begin()); fItt != tmd_data.faces.end(); fItt++) {
-						obj_out << "f ";
-						obj_out << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << " ";
-						obj_out << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << " ";
-						obj_out << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << std::endl;
+
+						for (auto fItt(tmd_data.faces.begin()); fItt != tmd_data.faces.end(); fItt++) {
+							obj_out << "f ";
+							obj_out << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << " ";
+							obj_out << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << " ";
+							obj_out << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << std::endl;
+						}
+						obj_out.close();
 					}
-					obj_out.close();
-				}
-				break;
+					break;
 			}
 		}
 		file.close();
@@ -95,7 +95,7 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 		std::ifstream file;
 		openToRead(file, in_file.string());
 		std::vector<std::string> filenames;
-		readFilenames(file, filenames);
+		Filename::load(file, filenames);
 		file.close();
 
 		const boost::filesystem::path parent = in_file.parent_path();
@@ -109,18 +109,25 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 
 int main(int argc, char** argv) {
 
-	TCLAP::CmdLine cmd("Senran Kagura Shinobi Versus Toolkit", ' ', "0.42");
-	TCLAP::ValueArg<std::string> inFileArg("i", "input-file", "Input-File", true, "", "string");
-	TCLAP::ValueArg<std::string> outFolderArg("o", "output-folder", "Output-Folder", false, "out", "string");
-	cmd.add(inFileArg);
-	cmd.add(outFolderArg);
-	cmd.parse(argc, argv);
+	// Cmd Handling
+	try {
+		TCLAP::CmdLine cmd("Senran Kagura Shinobi Versus Toolkit", ' ', "0.42");
+		TCLAP::ValueArg<std::string> inFileArg("i", "input-file", "Input-File", true, "", "string");
+		TCLAP::ValueArg<std::string> outFolderArg("o", "output-folder", "Output-Folder", false, "out", "string");
+		cmd.add(inFileArg);
+		cmd.add(outFolderArg);
+		cmd.parse(argc, argv);
 
-	boost::filesystem::path inFile(inFileArg.getValue());
-	boost::filesystem::path outFolder(outFolderArg.getValue());
+		boost::filesystem::path inFile(inFileArg.getValue());
+		boost::filesystem::path outFolder(outFolderArg.getValue());
+		
+		process(inFile, outFolder);
+	} catch (TCLAP::ArgException &e) {
+		std::cerr << "Error while parsing Cmd-Args: " << e.error() << " for Argument " << e.argId() << std::endl;
+	}
 
-	process(inFile, outFolder);
-
+	// Uncomment the following two Lines to keep the CMD open
+	std::cout << "preas [ENTER] to close" << std::endl;
 	std::cin.ignore();
 	return EXIT_SUCCESS;
 }
