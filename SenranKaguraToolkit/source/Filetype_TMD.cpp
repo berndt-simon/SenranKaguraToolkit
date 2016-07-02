@@ -114,13 +114,38 @@ namespace TMD {
 		// Read Vertices
 		const std::streamoff vertex_offset = tmd_start + header.vertex_range.start;
 		file.seekg(vertex_offset, std::ios::beg);
-		const uint8_t vf = header.feature_level.lsb;
+		const auto fl = header.feature_level;
+
+#ifdef _DEBUG
+		{
+			static const FeatureLevel_t test_fl_0{ 0xC7U };
+			assert(test_fl_0.position);
+			assert(test_fl_0.normals);
+			assert(test_fl_0.uv_0);
+			assert(!test_fl_0.uv_1);
+			assert(!test_fl_0.color);
+			assert(test_fl_0.rigging);
+
+			const FeatureLevel_t test_fl_1{ 0xCFU };
+			assert(test_fl_0.position);
+			assert(test_fl_0.normals);
+			assert(test_fl_0.uv_0);
+			assert(test_fl_0.uv_1);
+			assert(!test_fl_0.color);
+			assert(test_fl_0.rigging);
+
+		}
+#endif // DEBUG
+
+
 		for (auto i(0U); i < header.vertex_range.count; i++) {
 			Vertex_t vert;
-			for (auto pItt(vert.pos.begin()); pItt != vert.pos.end(); pItt++) {
-				read(file, &(*pItt));
+			if (fl.position) {
+				for (auto pItt(vert.pos.begin()); pItt != vert.pos.end(); pItt++) {
+					read(file, &(*pItt));
+				}
 			}
-			if (vf > 0x6F) {
+			if (fl.rigging) {
 				for (auto wItt(vert.weight.begin()); wItt != vert.weight.end(); wItt++) {
 					read(file, &(*wItt));
 				}
@@ -128,23 +153,23 @@ namespace TMD {
 					read(file, &(*bItt));
 				}
 			}
-			if (vf == 0xC7 || vf == 0xCF || vf == 0xE7) {
+			if (fl.normals) {
 				for (auto nItt(vert.normal.begin()); nItt != vert.normal.end(); nItt++) {
 					read(file, &(*nItt));
 				}
 			}
-			if (vf == 0x61 || vf == 0x65 || vf == 0xE7) {
+			if (fl.color) {
 				// Unused Ver_Color
 				for (auto cItt(vert.color.begin()); cItt != vert.color.end(); cItt++) {
 					read(file, &(*cItt));
 				}
 			}
-			if (vf > 0x61) {
+			if (fl.uv_0) {
 				for (auto tItt(vert.tex.begin()); tItt != vert.tex.end(); tItt++) {
 					read(file, &(*tItt));
 				}
 			}
-			if (vf == 0xCF) {
+			if (fl.uv_1) {
 				// Unused duplicate Tex_Coord
 				read<int16_t>(file);
 				read<int16_t>(file);
@@ -215,8 +240,10 @@ namespace TMD {
 	}
 
 	bool Header_t::verify() {
-		return magic_number == 0x30646D74;
+		// "tmd0" as uint32_t;
+		return magic_number == 0x30646D74U;
 	}
+
 
 	namespace RAW {
 		Face_t::Face_t() {

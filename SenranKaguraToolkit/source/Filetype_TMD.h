@@ -29,10 +29,23 @@ namespace TMD {
 	union FeatureLevel_t {
 		uint16_t as_short;
 		struct {
-			uint8_t lsb;
+			union {
+				uint8_t lsb;
+				struct {
+					uint8_t position : 1;
+					uint8_t normals : 1;
+					uint8_t uv_0 : 1;
+					uint8_t uv_1 : 1;
+					uint8_t uv_2 : 1;
+					uint8_t color : 1;
+					uint8_t unknown : 1;
+					uint8_t rigging : 1;
+				};
+			};
 			uint8_t msb;
 		};
 	};
+
 
 	struct Header_t {
 		uint32_t					magic_number;
@@ -130,7 +143,7 @@ namespace TMD {
 
 			BoneHierarchy_t();
 		};
-		
+
 		struct Data_t {
 			std::vector<BVH_t> bvhs;
 			std::vector<Rig_t> rigs;
@@ -146,7 +159,7 @@ namespace TMD {
 	}
 
 
-	
+
 	void load_raw(std::istream& file, const std::streamoff tmd_start, RAW::Data_t& data_out);
 
 	void post_process(RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries);

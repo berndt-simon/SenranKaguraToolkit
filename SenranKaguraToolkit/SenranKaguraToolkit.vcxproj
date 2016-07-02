@@ -38,6 +38,9 @@
   <ItemGroup>
     <None Include="Boost_FS_Include.props" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Character-Codes.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{046A5B83-2F31-4B72-8C23-F1411C81C707}</ProjectGuid>
     <RootNamespace>SenranKaguraToolkit</RootNamespace>

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Stuff">
+      <UniqueIdentifier>{45af1257-567b-4d7b-9ad4-72ef8278d0de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Filetype_CAT.h">
@@ -59,5 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Boost_FS_Include.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Character-Codes.txt">
+      <Filter>Stuff</Filter>
+    </Text>
   </ItemGroup>
 </Project>
