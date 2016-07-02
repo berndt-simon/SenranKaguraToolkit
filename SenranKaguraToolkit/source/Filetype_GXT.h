@@ -13,6 +13,10 @@ struct GXT_Header {
 	uint32_t					resource_count;
 	uint32_t					container_size;
 	std::vector<uint32_t>		offsets;
+
+	GXT_Header()
+		: size(0U), resource_count(0U), container_size(0U), offsets() {
+	}
 };
 
 
@@ -22,6 +26,10 @@ struct GXT_Entry {
 	std::string resource;
 
 	blob_t data;
+
+	GXT_Entry()
+		:package(), resource(), data() {
+	}
 };
 
 // Read the Contents of a GXT-File

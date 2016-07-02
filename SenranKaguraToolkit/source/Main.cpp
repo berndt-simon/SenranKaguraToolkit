@@ -50,31 +50,38 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 				case CAT_Resource_Entry::TMD:
 				case CAT_Resource_Entry::TMD_TOON:
 				{
-					TMD_Data tmd_data;
-					processTMD(file, entryItter->offset, entryItter->sub_entries, tmd_data);
+					TMD_RAW_Data tmd_data;
+					processTMD(file, entryItter->offset, tmd_data);
 					std::ofstream obj_out;
 					openToWrite(obj_out, "tmd.obj");
 					obj_out << std::dec;
 					obj_out << "# Converted TMD" << std::endl;
 					obj_out << "o TMD_Object" << std::endl;
+
 					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-						obj_out << "v " 
-							<< vItt->pos.x << " " 
-							<< vItt->pos.y << " " 
-							<< vItt->pos.z << " " << std::endl;
-						obj_out << "vt " 
-							<< static_cast<float>(vItt->tex.u) << " " 
-							<< static_cast<float>(vItt->tex.v) << std::endl;
-						obj_out << "vn " 
-							<< static_cast<float>(vItt->normal.x) << " " 
-							<< static_cast<float>(vItt->normal.y) << " " 
-							<< static_cast<float>(vItt->normal.z) << " " << std::endl;
+						obj_out << "v "
+							<< vItt->pos[0] << " "
+							<< vItt->pos[1] << " "
+							<< vItt->pos[2] << " " << std::endl;
 					}
+					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
+						obj_out << "vt "
+							<< static_cast<float>(vItt->tex[0]) / 1024 << " "
+							<< static_cast<float>(vItt->tex[1]) / -1024 << std::endl;
+					}
+					for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
+						obj_out << "vn "
+							<< static_cast<float>(vItt->normal[0]) << " "
+							<< static_cast<float>(vItt->normal[1]) << " "
+							<< static_cast<float>(vItt->normal[2]) << " " << std::endl;
+					}
+					
+
 					for (auto fItt(tmd_data.faces.begin()); fItt != tmd_data.faces.end(); fItt++) {
 						obj_out << "f ";
-						obj_out << fItt->f0 + 1 << "/" << fItt->f0 + 1 << "/" << fItt->f0 + 1 << " ";
-						obj_out << fItt->f1 + 1 << "/" << fItt->f1 + 1 << "/" << fItt->f1 + 1 << " ";
-						obj_out << fItt->f2 + 1 << "/" << fItt->f2 + 1 << "/" << fItt->f2 + 1 << std::endl;
+						obj_out << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << " ";
+						obj_out << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << " ";
+						obj_out << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << std::endl;
 					}
 					obj_out.close();
 				}

@@ -23,14 +23,13 @@ struct CAT_Resource_Entry {
 		GXT, TMD, TMD_TOON, UNDEFINED
 	};
 
-
 	struct Sub_Entry {
 		std::string package;
 		std::string resource;
 	};
 
-	Type type = UNDEFINED;
-	uint32_t offset = 0;
+	Type type;
+	uint32_t offset;
 	std::vector<Sub_Entry> sub_entries;
 };
 
