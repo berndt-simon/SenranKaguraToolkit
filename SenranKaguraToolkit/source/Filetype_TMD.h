@@ -145,6 +145,8 @@ namespace TMD {
 		};
 
 		struct Data_t {
+			Header_t header;
+
 			std::vector<BVH_t> bvhs;
 			std::vector<Rig_t> rigs;
 			std::vector<PolyGroup_t> poly_groups;
@@ -158,11 +160,49 @@ namespace TMD {
 
 	}
 
+	namespace PP {
+		struct BoneWeight_t {
+			uint32_t bone_id;
+			float weight;
+
+			BoneWeight_t();
+		};
+
+		struct Mesh_t {
+			std::vector<decltype(RAW::Face_t::vertex_index)> faces;
+			std::vector<std::array<uint32_t, 4>> bones; 
+			std::vector<std::array<BoneWeight_t, 4>> weights;
+			uint8_t material_id;
+		};
+
+		struct MaterialEntry_t {
+			std::string package;
+			std::string material_name;
+		};
+
+
+		std::string toString(const MaterialEntry_t& material_entry);
+
+		struct Data_t {
+			std::vector<decltype(RAW::Vertex_t::pos)> vertices;
+			std::vector<decltype(RAW::Vertex_t::normal)> normals;
+			std::vector<decltype(RAW::Vertex_t::color)> colors;
+			std::vector<decltype(RAW::Vertex_t::tex)> uvs;
+
+			std::vector<MaterialEntry_t> materials;
+
+			std::vector<Mesh_t> meshes;
+		};
+	}
+
 
 
 	void load_raw(std::istream& file, const std::streamoff tmd_start, RAW::Data_t& data_out);
 
-	void post_process(RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries);
+	void post_process(const RAW::Data_t& data_in, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PP::Data_t& data_out);
+
+	void write_mtl(std::ostream& file, const PP::Data_t& data_out, const std::string& path_prefix = "", const std::string& path_suffix = ".dds");
+	void write_obj(std::ostream& file, const PP::Data_t& data);
 
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost\filesystem.hpp>
+
 #include <string>
 #include <fstream>
 #include <vector>
@@ -29,10 +31,10 @@ inline T read(std::istream& file) {
 }
 
 // Open a File in Binary-Mode to read its Contend
-void openToRead(std::ifstream& file, const std::string& filename);
+void openToRead(std::ifstream& file, const boost::filesystem::path& filename);
 
 // Open a File in Binary-Mode to write its Contend
-void openToWrite(std::ofstream& file, const std::string& filename);
+void openToWrite(std::ofstream& file, const boost::filesystem::path& filename);
 
 // Report a Message to the Standard Error Output and throw a Exception afterwards
 void reportAndThrow(const std::string& msg);

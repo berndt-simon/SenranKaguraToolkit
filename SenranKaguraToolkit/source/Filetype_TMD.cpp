@@ -3,6 +3,7 @@
 #include "FileProcessing.h"
 #include <assert.h>
 #include <iostream>
+#include <iomanip>
 
 namespace TMD {
 
@@ -25,7 +26,7 @@ namespace TMD {
 
 		// Read Header
 		file.seekg(tmd_start, std::ios::beg);
-		Header_t header;
+		Header_t& header = data_out.header;
 		read(file, &header);
 		assert(header.verify());
 		const std::streamoff tmd_header_end = file.tellg();
@@ -118,21 +119,25 @@ namespace TMD {
 
 #ifdef _DEBUG
 		{
-			static const FeatureLevel_t test_fl_0{ 0xC7U };
-			assert(test_fl_0.position);
-			assert(test_fl_0.normals);
-			assert(test_fl_0.uv_0);
-			assert(!test_fl_0.uv_1);
-			assert(!test_fl_0.color);
-			assert(test_fl_0.rigging);
+			{
+				const FeatureLevel_t test_fl_0{ 0xC7U };
+				assert(test_fl_0.position);
+				assert(test_fl_0.normals);
+				assert(test_fl_0.uv_0);
+				assert(!test_fl_0.uv_1);
+				assert(!test_fl_0.color);
+				assert(test_fl_0.rigging);
+			}
 
-			const FeatureLevel_t test_fl_1{ 0xCFU };
-			assert(test_fl_0.position);
-			assert(test_fl_0.normals);
-			assert(test_fl_0.uv_0);
-			assert(test_fl_0.uv_1);
-			assert(!test_fl_0.color);
-			assert(test_fl_0.rigging);
+			{
+				const FeatureLevel_t test_fl_1{ 0xCFU };
+				assert(test_fl_1.position);
+				assert(test_fl_1.normals);
+				assert(test_fl_1.uv_0);
+				assert(test_fl_1.uv_1);
+				assert(!test_fl_1.color);
+				assert(test_fl_1.rigging);
+			}
 
 		}
 #endif // DEBUG
@@ -226,17 +231,136 @@ namespace TMD {
 #endif // READ_OPERATIONS
 	}
 
-	void post_process(RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries) {
-		/*for (auto i(0U); i < data.operations.size(); i++) {
-			const TMD_Data::Operation_t& op = data.operations[i];
-			switch (op.type) {
-				case 0x30:
-					for (auto y(0U); y < data.poly_groups[op.value].count; y++) {
+	void post_process(const RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PP::Data_t& data_out) {
+		const FeatureLevel_t& fl = data.header.feature_level;
+		// Copy Commons
+		for (auto vIdx(0U); vIdx < data.vertices.size(); vIdx++) {
+			const RAW::Vertex_t& vert = data.vertices[vIdx];
+			if (fl.position) {
+				data_out.vertices.push_back(vert.pos);
+			}
+			if (fl.normals) {
+				data_out.normals.push_back(vert.normal);
+			}
+			if (fl.color) {
+				data_out.colors.push_back(vert.color);
+			}
+			if (fl.uv_0) {
+				data_out.uvs.push_back(vert.tex);
+			}
+		}
 
+		// Copy Materials
+		for (auto eItt(sub_entries.begin()); eItt != sub_entries.end(); eItt++) {
+			data_out.materials.push_back(PP::MaterialEntry_t({ eItt->package, eItt->resource }));
+		}
+
+		uint8_t curr_mat(0U);
+		uint8_t curr_rig(0U);
+
+
+		for (auto oItt(data.operations.begin()); oItt != data.operations.end(); oItt++) {
+			switch (oItt->type) {
+				case 0x10:
+					// oItt = data.operations.end();
+					break;
+				case 0x20:
+					curr_mat = oItt->value;
+					break;
+				case 0x30:
+					{
+						PP::Mesh_t mesh;
+						mesh.material_id = curr_mat;
+
+						// Copy Faces
+						for (auto i(0U); i < data.poly_groups[oItt->value].count; i++) {
+							mesh.faces.push_back(data.faces[data.poly_groups[oItt->value].offset + i].vertex_index);
+						}
+
+						for (auto vIdx(0U); vIdx < data.vertices.size(); vIdx++) {
+							const RAW::Vertex_t& vert = data.vertices[vIdx];
+							if (fl.rigging) {
+								const auto& rel_bone_ids = vert.bone;
+								std::array<uint32_t, 4> abs_bone_ids;
+								assert(rel_bone_ids.size() == abs_bone_ids.size());
+
+								for (auto b(0U); b < 4U; b++) {
+									abs_bone_ids[b] = data.rigs[curr_rig].bone[rel_bone_ids[b]];
+								}
+								mesh.bones.push_back(abs_bone_ids);
+
+								std::array<PP::BoneWeight_t, 4> bone_weights;
+								assert(bone_weights.size() == vert.weight.size());
+								for (auto wIdx(0U); wIdx < vert.weight.size(); wIdx++) {
+									if (vert.weight[wIdx] > 0) {
+										bone_weights[wIdx].weight = static_cast<float>(vert.weight[wIdx]);
+										bone_weights[wIdx].bone_id = mesh.bones[vIdx][wIdx];
+									}
+								}
+								mesh.weights.push_back(bone_weights);
+							}
+						}
+
+						data_out.meshes.push_back(mesh);
 					}
 					break;
+				case 0x40:
+					curr_rig = oItt->value;
+					break;
 			}
-		}*/
+		}
+	}
+
+	void write_mtl(std::ostream& mtl, const PP::Data_t& data, const std::string& path_prefix, const std::string& path_suffix) {
+		auto cntr(0U);
+		for (auto eItt(data.materials.begin()); eItt != data.materials.end(); eItt++) {
+			mtl << "newmtl " << toString((*eItt)) << std::endl;
+			mtl << "Ka 0 0 0" << std::endl;
+			mtl << "Kd 0 0 0" << std::endl;
+			mtl << "Ks 0 0 0" << std::endl;
+			mtl << "Ns 0" << std::endl;
+			mtl << "illum 0" << std::endl;
+			mtl << "map_Kd " << path_prefix << eItt->package << "\\" << eItt->material_name << path_suffix << std::endl << std::endl;
+			cntr++;
+		}
+
+	}
+
+	void write_obj(std::ostream& obj, const PP::Data_t& data) {
+		obj << "# Converted TMD" << std::endl;
+		obj << "o TMD-Object" << std::endl;
+		for (auto vItt(data.vertices.begin()); vItt != data.vertices.end(); vItt++) {
+			obj << "v ";
+			obj << (*vItt)[0] << " ";
+			obj << (*vItt)[1] << " ";
+			obj << (*vItt)[2] << std::endl;
+		}
+		for (auto vItt(data.uvs.begin()); vItt != data.uvs.end(); vItt++) {
+			obj << "vt ";
+			obj << static_cast<float>((*vItt)[0]) / 1024 << " ";
+			obj << static_cast<float>((*vItt)[1]) / -1024 << std::endl;
+		}
+		for (auto vItt(data.normals.begin()); vItt != data.normals.end(); vItt++) {
+			obj << "vn ";
+			obj << static_cast<float>((*vItt)[0]) << " ";
+			obj << static_cast<float>((*vItt)[1]) << " ";
+			obj << static_cast<float>((*vItt)[2]) << std::endl;
+		}
+
+		for (auto mIdx(0U); mIdx < data.meshes.size(); mIdx++) {
+			const PP::Mesh_t& mesh = data.meshes[mIdx];
+
+			obj << "g TMD_Sub-Object_" << std::setfill('0') << std::setw(2) << mIdx << std::endl;
+			obj << "usemtl " << toString(data.materials[mesh.material_id]) << std::endl;
+			
+			for (auto fItt(mesh.faces.begin()); fItt != mesh.faces.end(); fItt++) {
+				obj << "f ";
+				obj << (*fItt)[0] + 1 << "/" << (*fItt)[0] + 1 << "/" << (*fItt)[0] + 1 << " ";
+				obj << (*fItt)[1] + 1 << "/" << (*fItt)[1] + 1 << "/" << (*fItt)[1] + 1 << " ";
+				obj << (*fItt)[2] + 1 << "/" << (*fItt)[2] + 1 << "/" << (*fItt)[2] + 1 << std::endl;
+			}
+		} 
+		
 	}
 
 	bool Header_t::verify() {
@@ -302,6 +426,18 @@ namespace TMD {
 		}
 	}
 
+
+
+	namespace PP {
+		BoneWeight_t::BoneWeight_t()
+			: bone_id(0U)
+			, weight(0.0f) {
+		}
+
+		std::string toString(const MaterialEntry_t& material_entry) {
+			return material_entry.package + "_" + material_entry.material_name;
+		}
+	}
 
 }
 

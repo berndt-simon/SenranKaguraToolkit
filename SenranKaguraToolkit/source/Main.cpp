@@ -1,10 +1,12 @@
 #include <tclap\CmdLine.h>
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 #include "FileProcessing.h"
 #include <fstream>
+#include <sstream>
 
 #include "Filetype_CAT.h"
 #include "Filetype_GXT.h"
@@ -22,7 +24,7 @@ bool hasEnding(const std::string& string, const std::string& ending) {
 	}
 }
 
-void process(const boost::filesystem::path& in_file, boost::filesystem::path out_folder) {
+void process(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
 
 	std::cout << "Try to load '" << in_file << "'..." << std::endl;
 	std::string filename_lc = in_file.string();
@@ -32,58 +34,47 @@ void process(const boost::filesystem::path& in_file, boost::filesystem::path out
 		std::ifstream file;
 		openToRead(file, in_file.string());
 		std::vector<CAT::ResourceEntry_t> cat_entries;
-		CAT::load(file, cat_entries);
+		CAT::load(file, cat_entries, true);
+		uint32_t cntr(0U);
 		for (auto entryItter(cat_entries.begin()); entryItter != cat_entries.end(); entryItter++) {
 			switch (entryItter->type) {
 				case CAT::ResourceEntry_t::GXT:
-					{
+					{	
+						std::cout << "Load GXT Sub-File" << std::endl;
 						std::vector<GXT::Entry_t> gxt_entries;
 						GXT::load(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
 						ResourceDumper dumper;
-						dumper.outputPrefix() = out_folder;
+						dumper.outputPrefix() = out_folder / "img";
 						dumper.outputPostfix() = ".dds";
 						for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
 							dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+							std::cout << "Dump GXT Resource: " << gxt_entry->package << "/" << gxt_entry->resource << std::endl;
 						}
 					}
 					break;
 				case CAT::ResourceEntry_t::TMD:
 				case CAT::ResourceEntry_t::TMD_TOON:
 					{
-						TMD::RAW::Data_t tmd_data;
-						TMD::load_raw(file, entryItter->offset, tmd_data);
+						std::cout << "Load TMD Sub-File" << std::endl;
+						TMD::RAW::Data_t tmd_data_raw;
+						TMD::load_raw(file, entryItter->offset, tmd_data_raw);
+						TMD::PP::Data_t tmd_data_pp;
+						TMD::post_process(tmd_data_raw, entryItter->sub_entries, tmd_data_pp);
+						std::stringstream filename_builder;
+						filename_builder << out_folder.string() << "/obj/tmd_" << std::setfill('0') << std::setw(2) << cntr;
+						const std::string mtl_filename = filename_builder.str() + ".mtl";
+						const std::string obj_filename = filename_builder.str() + ".obj";
+						std::ofstream mtl_out;
+						openToWrite(mtl_out, mtl_filename);
+						TMD::write_mtl(mtl_out, tmd_data_pp, "img\\");
+						mtl_out.close();
+
 						std::ofstream obj_out;
-						openToWrite(obj_out, "tmd.obj");
-						obj_out << std::dec;
-						obj_out << "# Converted TMD" << std::endl;
-						obj_out << "o TMD_Object" << std::endl;
-
-						for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-							obj_out << "v "
-								<< vItt->pos[0] << " "
-								<< vItt->pos[1] << " "
-								<< vItt->pos[2] << " " << std::endl;
-						}
-						for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-							obj_out << "vt "
-								<< static_cast<float>(vItt->tex[0]) / 1024 << " "
-								<< static_cast<float>(vItt->tex[1]) / -1024 << std::endl;
-						}
-						for (auto vItt(tmd_data.vertices.begin()); vItt != tmd_data.vertices.end(); vItt++) {
-							obj_out << "vn "
-								<< static_cast<float>(vItt->normal[0]) << " "
-								<< static_cast<float>(vItt->normal[1]) << " "
-								<< static_cast<float>(vItt->normal[2]) << " " << std::endl;
-						}
-
-
-						for (auto fItt(tmd_data.faces.begin()); fItt != tmd_data.faces.end(); fItt++) {
-							obj_out << "f ";
-							obj_out << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << "/" << fItt->vertex_index[0] + 1 << " ";
-							obj_out << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << "/" << fItt->vertex_index[1] + 1 << " ";
-							obj_out << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << "/" << fItt->vertex_index[2] + 1 << std::endl;
-						}
+						openToWrite(obj_out, obj_filename);
+						TMD::write_obj(obj_out, tmd_data_pp);
 						obj_out.close();
+						std::cout << "Dump TMD Resource: " << obj_filename << std::endl;
+						cntr++;
 					}
 					break;
 			}
@@ -127,7 +118,7 @@ int main(int argc, char** argv) {
 	}
 
 	// Uncomment the following two Lines to keep the CMD open
-	std::cout << "preas [ENTER] to close" << std::endl;
+	std::cout << "press [ENTER] to close" << std::endl;
 	std::cin.ignore();
 	return EXIT_SUCCESS;
 }
