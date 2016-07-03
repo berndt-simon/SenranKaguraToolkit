@@ -7,15 +7,30 @@
 
 #include "FileProcessing.h"
 
+ResourceDumper::ResourceDumper()
+	:_output_prefix(), _output_suffix() {
+};
+
+boost::filesystem::path& ResourceDumper::output_prefix() {
+	return _output_prefix;
+}
+
+boost::filesystem::path& ResourceDumper::output_suffix() {
+	return _output_suffix;
+}
+
 
 void ResourceDumper::dump(std::initializer_list<std::string> resource_name, const char* data, uint32_t count) {
 	boost::filesystem::path fullPath = _output_prefix;
 	for (auto res_name_itt(resource_name.begin()); res_name_itt != resource_name.end(); res_name_itt++) {
-		fullPath.concat(*res_name_itt);
+		fullPath /= (*res_name_itt);
 	}	
-	fullPath += _output_postfix;
+	fullPath += _output_suffix;
 
-	boost::filesystem::create_directories(fullPath.parent_path());
+	boost::filesystem::path parent(fullPath.parent_path());
+	if (!boost::filesystem::exists(parent)) {
+		boost::filesystem::create_directories(parent);
+	}
 
 	std::ofstream destination;
 	openToWrite(destination, fullPath.string());

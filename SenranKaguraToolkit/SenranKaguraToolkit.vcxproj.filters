@@ -36,6 +36,15 @@
     <ClInclude Include="source\ResourceDumper.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="source\Exporter_OBJ.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Exporter_Base.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Exporter_Collada.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Main.cpp">
@@ -57,6 +66,15 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="source\ResourceDumper.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Exporter_OBJ.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Exporter_Base.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Exporter_Collada.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

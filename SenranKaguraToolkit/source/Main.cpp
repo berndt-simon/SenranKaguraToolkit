@@ -13,8 +13,11 @@
 #include "Filetype_TMD.h"
 #include "Filename.h"
 
+#include "Exporter_OBJ.h"
+#include "Exporter_Collada.h"
 #include "ResourceDumper.h"
 
+#define EXPORTER_OBJ
 
 bool hasEnding(const std::string& string, const std::string& ending) {
 	if (string.length() >= ending.length()) {
@@ -44,10 +47,11 @@ void process(const boost::filesystem::path& in_file, const boost::filesystem::pa
 						std::vector<GXT::Entry_t> gxt_entries;
 						GXT::load(file, entryItter->offset, entryItter->sub_entries, gxt_entries);
 						ResourceDumper dumper;
-						dumper.outputPrefix() = out_folder / "img";
-						dumper.outputPostfix() = ".dds";
+						dumper.output_prefix() = out_folder;
+						dumper.output_prefix() /= "img";
+						dumper.output_suffix() = ".dds";
 						for (auto gxt_entry(gxt_entries.begin()); gxt_entry != gxt_entries.end(); gxt_entry++) {
-							dumper.dump({ "./", gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
+							dumper.dump({ gxt_entry->package, "/", gxt_entry->resource }, gxt_entry->data);
 							std::cout << "Dump GXT Resource: " << gxt_entry->package << "/" << gxt_entry->resource << std::endl;
 						}
 					}
@@ -60,20 +64,22 @@ void process(const boost::filesystem::path& in_file, const boost::filesystem::pa
 						TMD::load_raw(file, entryItter->offset, tmd_data_raw);
 						TMD::PP::Data_t tmd_data_pp;
 						TMD::post_process(tmd_data_raw, entryItter->sub_entries, tmd_data_pp);
-						std::stringstream filename_builder;
-						filename_builder << out_folder.string() << "/obj/tmd_" << std::setfill('0') << std::setw(2) << cntr;
-						const std::string mtl_filename = filename_builder.str() + ".mtl";
-						const std::string obj_filename = filename_builder.str() + ".obj";
-						std::ofstream mtl_out;
-						openToWrite(mtl_out, mtl_filename);
-						TMD::write_mtl(mtl_out, tmd_data_pp, "img\\");
-						mtl_out.close();
 
-						std::ofstream obj_out;
-						openToWrite(obj_out, obj_filename);
-						TMD::write_obj(obj_out, tmd_data_pp);
-						obj_out.close();
-						std::cout << "Dump TMD Resource: " << obj_filename << std::endl;
+#ifdef EXPORTER_OBJ
+						ObjExporter exporter;
+						exporter.mtl_resource_prefix() = "..\\img\\";
+#else
+						ColladaExporter exporter;
+#endif // EXPORTER_OBJ
+						exporter.set_flip_normals(true);
+						exporter.set_rescale_factor(0.01f);
+						exporter.export_folder() = out_folder;
+						std::stringstream obj_folder_name;
+						obj_folder_name << "obj_" << std::setfill('0') << std::setw(2) << cntr;
+						exporter.export_folder() /= obj_folder_name.str();
+						
+						exporter.save(tmd_data_pp);
+						std::cout << "Dump TMD Resources to Obj " << std::endl;
 						cntr++;
 					}
 					break;
@@ -99,6 +105,7 @@ void process(const boost::filesystem::path& in_file, const boost::filesystem::pa
 }
 
 int main(int argc, char** argv) {
+
 
 	// Cmd Handling
 	try {

@@ -311,58 +311,6 @@ namespace TMD {
 		}
 	}
 
-	void write_mtl(std::ostream& mtl, const PP::Data_t& data, const std::string& path_prefix, const std::string& path_suffix) {
-		auto cntr(0U);
-		for (auto eItt(data.materials.begin()); eItt != data.materials.end(); eItt++) {
-			mtl << "newmtl " << toString((*eItt)) << std::endl;
-			mtl << "Ka 0 0 0" << std::endl;
-			mtl << "Kd 0 0 0" << std::endl;
-			mtl << "Ks 0 0 0" << std::endl;
-			mtl << "Ns 0" << std::endl;
-			mtl << "illum 0" << std::endl;
-			mtl << "map_Kd " << path_prefix << eItt->package << "\\" << eItt->material_name << path_suffix << std::endl << std::endl;
-			cntr++;
-		}
-
-	}
-
-	void write_obj(std::ostream& obj, const PP::Data_t& data) {
-		obj << "# Converted TMD" << std::endl;
-		obj << "o TMD-Object" << std::endl;
-		for (auto vItt(data.vertices.begin()); vItt != data.vertices.end(); vItt++) {
-			obj << "v ";
-			obj << (*vItt)[0] << " ";
-			obj << (*vItt)[1] << " ";
-			obj << (*vItt)[2] << std::endl;
-		}
-		for (auto vItt(data.uvs.begin()); vItt != data.uvs.end(); vItt++) {
-			obj << "vt ";
-			obj << static_cast<float>((*vItt)[0]) / 1024 << " ";
-			obj << static_cast<float>((*vItt)[1]) / -1024 << std::endl;
-		}
-		for (auto vItt(data.normals.begin()); vItt != data.normals.end(); vItt++) {
-			obj << "vn ";
-			obj << static_cast<float>((*vItt)[0]) << " ";
-			obj << static_cast<float>((*vItt)[1]) << " ";
-			obj << static_cast<float>((*vItt)[2]) << std::endl;
-		}
-
-		for (auto mIdx(0U); mIdx < data.meshes.size(); mIdx++) {
-			const PP::Mesh_t& mesh = data.meshes[mIdx];
-
-			obj << "g TMD_Sub-Object_" << std::setfill('0') << std::setw(2) << mIdx << std::endl;
-			obj << "usemtl " << toString(data.materials[mesh.material_id]) << std::endl;
-			
-			for (auto fItt(mesh.faces.begin()); fItt != mesh.faces.end(); fItt++) {
-				obj << "f ";
-				obj << (*fItt)[0] + 1 << "/" << (*fItt)[0] + 1 << "/" << (*fItt)[0] + 1 << " ";
-				obj << (*fItt)[1] + 1 << "/" << (*fItt)[1] + 1 << "/" << (*fItt)[1] + 1 << " ";
-				obj << (*fItt)[2] + 1 << "/" << (*fItt)[2] + 1 << "/" << (*fItt)[2] + 1 << std::endl;
-			}
-		} 
-		
-	}
-
 	bool Header_t::verify() {
 		// "tmd0" as uint32_t;
 		return magic_number == 0x30646D74U;

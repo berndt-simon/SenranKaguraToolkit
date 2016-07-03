@@ -201,8 +201,6 @@ namespace TMD {
 
 	void post_process(const RAW::Data_t& data_in, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PP::Data_t& data_out);
 
-	void write_mtl(std::ostream& file, const PP::Data_t& data_out, const std::string& path_prefix = "", const std::string& path_suffix = ".dds");
-	void write_obj(std::ostream& file, const PP::Data_t& data);
 
 }
 

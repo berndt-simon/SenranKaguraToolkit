@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\Exporter_Base.h" />
+    <ClInclude Include="source\Exporter_Collada.h" />
+    <ClInclude Include="source\Exporter_OBJ.h" />
     <ClInclude Include="source\Filename.h" />
     <ClInclude Include="source\FileProcessing.h" />
     <ClInclude Include="source\Filetype_CAT.h" />
@@ -27,6 +30,9 @@
     <ClInclude Include="source\ResourceDumper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\Exporter_Base.cpp" />
+    <ClCompile Include="source\Exporter_Collada.cpp" />
+    <ClCompile Include="source\Exporter_OBJ.cpp" />
     <ClCompile Include="source\Filename.cpp" />
     <ClCompile Include="source\FileProcessing.cpp" />
     <ClCompile Include="source\Filetype_CAT.cpp" />
