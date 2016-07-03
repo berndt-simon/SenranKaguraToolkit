@@ -12,6 +12,10 @@ Things that work at the Moment:
 * Read Content of GXT-Files (standalone or within a CAT-File)
 * Dump GXT-Content as DDS-Files - replicating internal File-Structure with new Folders
 * Read Content of TMD-Files (standalone or within a CAT-File)
-* Dump TMD-Content as OBJ-Files - sort of works (at the Moment just basic Geometry and UV-Map)
+* Dump TMD-Content as OBJ-Files - Vertex/Normals/UVs within obj, Materials as *.mtl Reference  
+ OBJ does not support Bones/Rigging but the nessecary Data is already available.
 
 I dared to require Boost::Filesystem because working without it would be a mess..
+
+As an Example - Character exported as OBJ - Rendered with Blender
+<img src="blender_export.png" width="512">
