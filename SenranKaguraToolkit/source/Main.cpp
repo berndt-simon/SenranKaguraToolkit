@@ -17,7 +17,7 @@
 #include "Exporter_Collada.h"
 #include "ResourceDumper.h"
 
-#define EXPORTER_OBJ
+//#define EXPORTER_OBJ
 
 bool hasEnding(const std::string& string, const std::string& ending) {
 	if (string.length() >= ending.length()) {
@@ -67,13 +67,14 @@ void process(const boost::filesystem::path& in_file, const boost::filesystem::pa
 
 #ifdef EXPORTER_OBJ
 						ObjExporter exporter;
-						exporter.mtl_resource_prefix() = "..\\img\\";
 #else
 						ColladaExporter exporter;
+						exporter.enable_material_export(false);
 #endif // EXPORTER_OBJ
 						exporter.set_flip_normals(true);
 						exporter.set_rescale_factor(0.01f);
 						exporter.export_folder() = out_folder;
+						exporter.material_resource_prefix() = "..\\img\\";
 						std::stringstream obj_folder_name;
 						obj_folder_name << "obj_" << std::setfill('0') << std::setw(2) << cntr;
 						exporter.export_folder() /= obj_folder_name.str();

@@ -7,9 +7,7 @@
 ObjExporter::ObjExporter()
 	: Exporter()
 	, _obj_suffix(".obj")
-	, _mtl_suffix(".mtl")
-	, _mtl_resource_suffix(".dds")
-	, _mtl_resource_prefix("..\\") {
+	, _mtl_suffix(".mtl") {
 }
 
 void ObjExporter::save(const TMD::PP::Data_t& data) {
@@ -42,19 +40,12 @@ boost::filesystem::path& ObjExporter::mtl_suffix() {
 	return _mtl_suffix;
 }
 
-std::string& ObjExporter::mtl_resource_prefix() {
-	return _mtl_resource_prefix;
-}
-
-std::string& ObjExporter::mtl_resource_suffix() {
-	return _mtl_resource_suffix;
-}
 
 void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PP::Data_t& data) {
 	for (auto eItt(data.materials.begin()); eItt != data.materials.end(); eItt++) {
 		mtl << "newmtl " << toString((*eItt)) << std::endl;
 		mtl << "illum 0" << std::endl;
-		mtl << "map_Ka " << _mtl_resource_prefix << eItt->package << "\\" << eItt->material_name << _mtl_resource_suffix << std::endl << std::endl;
+		mtl << "map_Ka " << _material_resource_prefix << eItt->package << "\\" << eItt->material_name << _material_resource_suffix << std::endl << std::endl;
 	}
 }
 

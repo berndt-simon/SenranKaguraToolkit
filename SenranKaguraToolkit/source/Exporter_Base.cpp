@@ -6,7 +6,9 @@ Exporter::Exporter()
 	, _export_uvs(true)
 	, _export_materials(true)
 	, _rescale_fator(1.0f)
-	, _flip_normals(false) {
+	, _flip_normals(false)
+	, _material_resource_suffix(".dds")
+	, _material_resource_prefix("..\\") {
 };
 
 void Exporter::enable_uv_export(bool enable) {
@@ -31,4 +33,12 @@ void Exporter::set_flip_normals(bool flip) {
 
 boost::filesystem::path& Exporter::export_folder() {
 	return _export_folder;
+}
+
+std::string& Exporter::material_resource_prefix() {
+	return _material_resource_prefix;
+}
+
+std::string& Exporter::material_resource_suffix() {
+	return _material_resource_suffix;
 }

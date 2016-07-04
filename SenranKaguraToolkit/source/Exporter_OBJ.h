@@ -12,9 +12,6 @@ public:
 	boost::filesystem::path& obj_suffix();
 	boost::filesystem::path& mtl_suffix();
 
-	std::string& mtl_resource_prefix();
-	std::string& mtl_resource_suffix();
-
 	void save(const TMD::PP::Data_t& data) override;
 
 protected:
@@ -27,6 +24,4 @@ private:
 	boost::filesystem::path _obj_suffix;
 	boost::filesystem::path _mtl_suffix;
 	
-	std::string _mtl_resource_prefix;
-	std::string _mtl_resource_suffix;
 };
