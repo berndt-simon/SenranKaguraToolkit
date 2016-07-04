@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 	// Cmd Handling
 	try {
 		const std::string default_out_folder("out");
-		TCLAP::CmdLine cmd("SenranKagura-Toolkit", ' ', "0.42");
+		TCLAP::CmdLine cmd("SenranKagura-Toolkit", ' ', "0.1");
 		TCLAP::ValueArg<std::string> outFolderArg("o", "output-folder", "Output-Folder - defaults to '" + default_out_folder + "'", false, default_out_folder, "Path as String");
 		TCLAP::ValueArg<std::string> inFileArg("i", "input-file", "Input-File with auto type-recognition", true, "", "Filepath as String");
 		cmd.add(inFileArg);
