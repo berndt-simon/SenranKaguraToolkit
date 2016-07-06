@@ -30,6 +30,8 @@ inline T read(std::istream& file) {
 	return buffer;
 }
 
+std::string archive_name(boost::filesystem::path file, bool full = false);
+
 // Open a File in Binary-Mode to read its Contend
 void openToRead(std::ifstream& file, const boost::filesystem::path& filename);
 

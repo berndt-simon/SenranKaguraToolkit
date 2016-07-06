@@ -5,7 +5,8 @@
 #include <array>
 #include <string>
 #include <iosfwd>
-#include <set>
+
+#include <boost\filesystem.hpp>
 
 #include "ElementType.h"
 
@@ -37,10 +38,7 @@ namespace CAT {
 	// Read the Contents of a CAT-File
 	// Store Descriptors of all found Entries into a given Vector
 	// archive_name is meant to be the name of the file which corresponds to the given istream - just the filename without the extension
-	void load(const std::string& archive_name, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out = false);
-
-	void sanatize_archive_name(const std::string& in, std::string& out);
-
+	void load(const boost::filesystem::path& file_path, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out = false);
 }
 
 std::ostream& operator<<(std::ostream& out, const std::vector<CAT::ResourceEntry_t>& entries);

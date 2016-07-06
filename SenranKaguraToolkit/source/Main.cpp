@@ -74,9 +74,8 @@ static void process_cat(const boost::filesystem::path& in_file, const boost::fil
 	std::ifstream file;
 	openToRead(file, in_file.string());
 	std::vector<CAT::ResourceEntry_t> cat_entries;
-	const std::string filename(in_file.stem().string());
 
-	CAT::load(filename, file, cat_entries, true);
+	CAT::load(in_file, file, cat_entries, true);
 	uint32_t tmd_cntr(0U);
 	for (const auto& entry : cat_entries) {
 		switch (entry.type) {

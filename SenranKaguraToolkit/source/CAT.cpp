@@ -8,7 +8,7 @@
 
 #include <assert.h>
 
-
+// #define RENAME_CONV0
 
 namespace CAT {
 
@@ -23,13 +23,7 @@ namespace CAT {
 		, sub_entries() {		
 	}
 
-	void sanatize_archive_name(const std::string& in, std::string& out) {
-		// Assume there is only one valid underscore within an archive name
-		// If more than one underscore is present
-		
-	}
-
-	void load(const std::string& filename, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out) {
+	void load(const boost::filesystem::path& file_path, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out) {
 		const std::streampos fileStart(file.tellg());
 
 		// Read Header
@@ -105,9 +99,16 @@ namespace CAT {
 			}
 		} while (file.tellg() < entries[0].offset + fileStart);
 
-		for (auto entry : entries) {
-			
+#ifdef RENAME_CONV0
+		for (auto& entry : entries) {
+			for (auto& sub_entry : entry.sub_entries) {
+				// "conv0" May be a keyword referencing the current container name
+				if (sub_entry.package.compare("conv0") == 0) {
+					sub_entry.package = archive_name(file_path);
+				}
+			}
 		}
+#endif // RENAME_CONV0		
 
 		if (debug_out) {
 			std::cout << entries << std::endl;
