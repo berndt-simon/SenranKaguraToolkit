@@ -3,7 +3,7 @@
 #include <boost\filesystem.hpp>
 #include <string>
 
-#include "Filetype_TMD.h"
+#include "TMD.h"
 
 class Exporter {
 public:

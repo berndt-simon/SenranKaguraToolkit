@@ -1,4 +1,4 @@
-#include "Filetype_GXT.h"
+#include "GXT.h"
 
 #include <assert.h>
 #include <iterator>

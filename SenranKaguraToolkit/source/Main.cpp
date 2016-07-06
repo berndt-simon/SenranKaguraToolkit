@@ -8,9 +8,9 @@
 #include <fstream>
 #include <sstream>
 
-#include "Filetype_CAT.h"
-#include "Filetype_GXT.h"
-#include "Filetype_TMD.h"
+#include "CAT.h"
+#include "GXT.h"
+#include "TMD.h"
 #include "Filename.h"
 
 #include "Exporter_OBJ.h"
@@ -79,12 +79,12 @@ static void process_cat(const boost::filesystem::path& in_file, const boost::fil
 	uint32_t tmd_cntr(0U);
 	for (auto eItt(cat_entries.begin()); eItt != cat_entries.end(); eItt++) {
 		switch (eItt->type) {
-			case CAT::ResourceEntry_t::GXT:
+			case ElementType_e::GXT:
 				std::cout << "Load GXT Sub-File" << std::endl;
 				process_gxt(file, eItt->offset, eItt->sub_entries, out_folder);
 				break;
-			case CAT::ResourceEntry_t::TMD:
-			case CAT::ResourceEntry_t::TMD_TOON:
+			case ElementType_e::TMD:
+			case ElementType_e::TMD_TOON:
 				std::cout << "Load TMD Sub-File" << std::endl;
 				process_tmd(file, eItt->offset, eItt->sub_entries, out_folder, tmd_cntr);
 				tmd_cntr++;

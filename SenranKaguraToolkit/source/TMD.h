@@ -4,7 +4,7 @@
 #include <array>
 
 #include "FileProcessing.h"
-#include "Filetype_CAT.h"
+#include "CAT.h"
 
 namespace TMD {
 

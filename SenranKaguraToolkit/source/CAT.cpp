@@ -1,4 +1,4 @@
-#include "Filetype_CAT.h"
+#include "CAT.h"
 
 #include "FileProcessing.h"
 
@@ -7,32 +7,8 @@
 
 #include <assert.h>
 
-std::string toString(CAT::ResourceEntry_t::Type_e type) {
-	switch (type) {
-		case CAT::ResourceEntry_t::GXT:
-			return CAT::TYPE_KEY_GXT;
-		case CAT::ResourceEntry_t::TMD:
-			return CAT::TYPE_KEY_TMD;
-		case CAT::ResourceEntry_t::TMD_TOON:
-			return CAT::TYPE_KEY_TMD_TOON;
-		default:
-			return "UNDEFINED";
-	}
-}
 
 namespace CAT {
-
-	ResourceEntry_t::Type_e toType(const std::string& type) {
-		if (TYPE_KEY_GXT.compare(type) == 0) {
-			return ResourceEntry_t::Type_e::GXT;
-		} else if (TYPE_KEY_TMD.compare(type) == 0) {
-			return ResourceEntry_t::Type_e::TMD;
-		} else if (TYPE_KEY_TMD_TOON.compare(type) == 0) {
-			return ResourceEntry_t::Type_e::TMD_TOON;
-		}
-		std::cerr << "Undefined CAT-Resource-Type: " << type << std::endl;
-		return ResourceEntry_t::Type_e::UNDEFINED;
-	}
 
 
 
@@ -82,9 +58,9 @@ namespace CAT {
 							if (itterOffset >= entries.size()) {
 								std::cerr << "Entry out of scope" << std::endl;
 								itterOffset--;
-								assert((entryItter + itterOffset)->type == toType(level_build[0]));
+								assert((entryItter + itterOffset)->type == from_string(level_build[0]));
 							} else {
-								(entryItter + itterOffset)->type = toType(level_build[0]);
+								(entryItter + itterOffset)->type = from_string(level_build[0]);
 							}
 							assert(!level_build[1].empty());
 							assert(!level_build[2].empty());
@@ -131,7 +107,7 @@ std::ostream& operator<<(std::ostream& out, const CAT::Header_t& header) {
 std::ostream& operator<<(std::ostream& out, const std::vector<CAT::ResourceEntry_t>& filetable) {
 	out << "Cat-Entries:" << std::endl;
 	for (auto res(filetable.begin()); res < filetable.end(); res++) {
-		out << "\t" << toString(res->type) << "-Entry (0x" << std::hex << res->offset << "): " << std::endl;
+		out << "\t" << to_string(res->type) << "-Entry (0x" << std::hex << res->offset << "): " << std::endl;
 		for (auto subres(res->sub_entries.begin()); subres < res->sub_entries.end(); subres++) {
 			out << "\t\tSub-Entry: " << subres->package << "/" << subres->resource << std::endl;
 		}

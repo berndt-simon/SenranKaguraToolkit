@@ -19,14 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\ElementType.h" />
     <ClInclude Include="source\Exporter_Base.h" />
     <ClInclude Include="source\Exporter_Collada.h" />
     <ClInclude Include="source\Exporter_OBJ.h" />
     <ClInclude Include="source\Filename.h" />
     <ClInclude Include="source\FileProcessing.h" />
-    <ClInclude Include="source\Filetype_CAT.h" />
-    <ClInclude Include="source\Filetype_GXT.h" />
-    <ClInclude Include="source\Filetype_TMD.h" />
+    <ClInclude Include="source\CAT.h" />
+    <ClInclude Include="source\GXT.h" />
+    <ClInclude Include="source\TMD.h" />
     <ClInclude Include="source\ResourceDumper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -35,9 +36,9 @@
     <ClCompile Include="source\Exporter_OBJ.cpp" />
     <ClCompile Include="source\Filename.cpp" />
     <ClCompile Include="source\FileProcessing.cpp" />
-    <ClCompile Include="source\Filetype_CAT.cpp" />
-    <ClCompile Include="source\Filetype_GXT.cpp" />
-    <ClCompile Include="source\Filetype_TMD.cpp" />
+    <ClCompile Include="source\CAT.cpp" />
+    <ClCompile Include="source\GXT.cpp" />
+    <ClCompile Include="source\TMD.cpp" />
     <ClCompile Include="source\Main.cpp" />
     <ClCompile Include="source\ResourceDumper.cpp" />
   </ItemGroup>

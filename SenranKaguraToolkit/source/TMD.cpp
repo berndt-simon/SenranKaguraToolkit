@@ -1,4 +1,4 @@
-#include "Filetype_TMD.h"
+#include "TMD.h"
 
 #include "FileProcessing.h"
 #include <assert.h>

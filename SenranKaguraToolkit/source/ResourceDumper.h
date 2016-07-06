@@ -7,8 +7,6 @@
 #include <boost\filesystem.hpp>
 
 #include "FileProcessing.h"
-#include "Filetype_CAT.h"
-
 
 class ResourceDumper {
 public:
