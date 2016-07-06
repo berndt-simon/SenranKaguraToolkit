@@ -8,6 +8,20 @@
 
 
 namespace GXT {
+
+	Header_t::Header_t()
+		: size(0U)
+		, resource_count(0U)
+		, container_size(0U)
+		, offsets() {
+	}
+
+	Entry_t::Entry_t()
+		: package()
+		, resource()
+		, data() {
+	}
+
 	void load(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, std::vector<Entry_t>& entries) {
 		file.seekg(gxt_start, std::ios::beg);
 
@@ -27,10 +41,10 @@ namespace GXT {
 
 		// Read Data into Container
 		file.seekg(header.size + gxt_start, std::ios::beg);
-		const std::streamoff offset_base = file.tellg();
-		const std::streamoff data_end = offset_base + header.container_size;
+		const std::streamoff offset_base(file.tellg());
+		const std::streamoff data_end(offset_base + header.container_size);
 		for (auto res(0U); res < header.resource_count; res++) {
-			const std::streamoff resource_start = offset_base + header.offsets[res];
+			const std::streamoff resource_start(offset_base + header.offsets[res]);
 			std::streamoff resource_size = 0;
 			if (res == header.resource_count - 1) {
 				resource_size = data_end - resource_start;
@@ -42,7 +56,7 @@ namespace GXT {
 			entry.resource = sub_entries[res].resource;
 
 			file.seekg(resource_start, std::ios::beg);
-			const std::streamoff curr_pos = file.tellg();
+			const std::streamoff curr_pos(file.tellg());
 			static_assert(sizeof(char) == sizeof(byte_t), "Size Missmatch");
 			entry.data.resize(resource_size);
 			file.read(reinterpret_cast<char*>(entry.data.data()), resource_size);
@@ -50,19 +64,6 @@ namespace GXT {
 		}
 
 
-	}
-
-	Header_t::Header_t() 
-		: size(0U)
-		, resource_count(0U)
-		, container_size(0U)
-		, offsets() {
-	}
-
-	Entry_t::Entry_t()
-		: package()
-		, resource()
-		, data() {
 	}
 
 }

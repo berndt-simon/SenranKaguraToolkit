@@ -22,8 +22,8 @@ boost::filesystem::path& ResourceDumper::output_suffix() {
 
 void ResourceDumper::dump(std::initializer_list<std::string> resource_name, const char* data, uint32_t count) {
 	boost::filesystem::path fullPath = _output_prefix;
-	for (auto res_name_itt(resource_name.begin()); res_name_itt != resource_name.end(); res_name_itt++) {
-		fullPath /= (*res_name_itt);
+	for (const auto& res_sub_name : resource_name) {
+		fullPath /= res_sub_name;
 	}	
 	fullPath += _output_suffix;
 

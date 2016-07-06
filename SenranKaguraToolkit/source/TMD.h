@@ -32,13 +32,13 @@ namespace TMD {
 			union {
 				uint8_t lsb;
 				struct {
-					uint8_t position : 1;
+					uint8_t _position : 1;
 					uint8_t normals : 1;
 					uint8_t uv_0 : 1;
 					uint8_t uv_1 : 1;
-					uint8_t uv_2 : 1;
+					uint8_t _uv_2 : 1;
 					uint8_t color : 1;
-					uint8_t unknown : 1;
+					uint8_t _unknown : 1;
 					uint8_t rigging : 1;
 				};
 			};
@@ -53,18 +53,18 @@ namespace TMD {
 		FeatureLevel_t				feature_level;
 		std::array<uint16_t, 4>		unknowns;
 		Bounds_t					bounds;
-		Range_t					bvh_range;
-		Range_t					operation_range;
-		Range_t					unknown_range;
-		Range_t					rig_range;
-		Range_t					shader_range;
-		Range_t					poly_group_range;
-		Range_t					face_range;
-		RangeInv_t				vertex_range;
+		Range_t						bvh_range;
+		Range_t						operation_range;
+		Range_t						unknown_range;
+		Range_t						rig_range;
+		Range_t						shader_range;
+		Range_t						poly_group_range;
+		Range_t						face_range;
+		RangeInv_t					vertex_range;
 		std::array<uint32_t, 7>		unknown_offsets;
-		Range_t					bone_range;
-		Range_t					bone_hierarchy_range;
-		Range_t					tex_info_range;
+		Range_t						bone_range;
+		Range_t						bone_hierarchy_range;
+		Range_t						tex_info_range;
 		uint32_t					blank;
 
 		bool verify();
@@ -72,12 +72,12 @@ namespace TMD {
 
 	namespace RAW {
 		struct Vertex_t {
-			std::array<float, 3> pos;
-			std::array<uint8_t, 4> weight;
-			std::array<uint8_t, 4> bone;
-			std::array<int8_t, 4> normal;
-			std::array<uint8_t, 4> color;
-			std::array<int16_t, 2> tex;
+			std::array<float, 3>	pos;
+			std::array<uint8_t, 4>	weight;
+			std::array<uint8_t, 4>	bone;
+			std::array<int8_t, 4>	normal;
+			std::array<uint8_t, 4>	color;
+			std::array<int16_t, 2>	tex;
 
 			Vertex_t();
 		};
@@ -121,8 +121,6 @@ namespace TMD {
 		};
 
 		struct Rig_t {
-			static const int32_t EMPTY_BONE = 0xFFFFFFFF;
-
 			int32_t count;
 			std::array<int32_t, 32> bone;
 

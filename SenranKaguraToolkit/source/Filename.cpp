@@ -8,14 +8,14 @@ namespace Filename {
 	void load(std::istream& file, std::vector<std::string>& filenames_out) {
 		Header_t header;
 		read(file, &header);
-		const std::streamoff offset_base = file.tellg();
+		const std::streamoff offset_base(file.tellg());
 		std::vector<uint32_t> offsets;
 		do {
 			offsets.push_back(read<uint32_t>(file));
 		} while (file.tellg() < offset_base + offsets.front());
 
-		for (auto oItt(offsets.begin()); oItt != offsets.end(); oItt++) {
-			file.seekg(offset_base + (*oItt), std::ios::beg);
+		for (const auto& offset : offsets) {
+			file.seekg(offset_base + offset, std::ios::beg);
 			std::string filename;
 			std::getline(file, filename, static_cast<char>(0));
 			filenames_out.push_back(filename);

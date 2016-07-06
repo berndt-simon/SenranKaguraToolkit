@@ -29,13 +29,13 @@ namespace TMD {
 		Header_t& header = data_out.header;
 		read(file, &header);
 		assert(header.verify());
-		const std::streamoff tmd_header_end = file.tellg();
+		const std::streamoff tmd_header_end(file.tellg());
 		// Header is 160 Bytes long
 		assert(tmd_header_end - tmd_start == 160);
 
 #ifndef SKIP_READ_BVHS
 		// Read BVHs
-		const std::streamoff bvh_offset = tmd_start + header.bvh_range.start;
+		const std::streamoff bvh_offset(tmd_start + header.bvh_range.start);
 		file.seekg(bvh_offset, std::ios::beg);
 		for (auto i(0U); i < header.bvh_range.count; i++) {
 			BVH_t bvh;
@@ -49,13 +49,13 @@ namespace TMD {
 
 #ifndef SKIP_READ_RIGS
 		// Read Rigs
-		const std::streamoff rig_offset = tmd_start + header.rig_range.start;
+		const std::streamoff rig_offset(tmd_start + header.rig_range.start);
 		file.seekg(rig_offset, std::ios::beg);
 		for (auto i(0U); i < header.rig_range.count; i++) {
 			Rig_t rig;
 			read(file, &rig.count);
-			for (auto bItt(rig.bone.begin()); bItt != rig.bone.end(); bItt++) {
-				read(file, &(*bItt));
+			for (auto& bone : rig.bone) {
+				read(file, &bone);
 			}
 			data_out.rigs.push_back(rig);
 		}
@@ -68,7 +68,7 @@ namespace TMD {
 
 #ifndef SKIP_READ_POLY_GROUPS
 		// Read Polygroups
-		const std::streamoff poly_group_offset = tmd_start + header.poly_group_range.start;
+		const std::streamoff poly_group_offset(tmd_start + header.poly_group_range.start);
 		file.seekg(poly_group_offset, std::ios::beg);
 		for (auto i(0U); i < header.poly_group_range.count; i++) {
 			PolyGroup_t poly_group;
@@ -82,12 +82,12 @@ namespace TMD {
 
 #ifndef SKIP_READ_FACES
 		// Read Faces
-		const std::streamoff face_offset = tmd_start + header.face_range.start;
+		const std::streamoff face_offset(tmd_start + header.face_range.start);
 		file.seekg(face_offset, std::ios::beg);
 		for (auto i(0U); i < header.face_range.count; i++) {
 			Face_t face;
-			for (auto iItt(face.vertex_index.begin()); iItt != face.vertex_index.end(); iItt++) {
-				read(file, &(*iItt));
+			for (auto& index : face.vertex_index) {
+				read(file, &index);
 			}
 			data_out.faces.push_back(face);
 		}
@@ -96,15 +96,15 @@ namespace TMD {
 
 #ifndef SKIP_READ_TEXTURES
 		// Read Texture Infos
-		const std::streamoff tex_info_offset = tmd_start + header.tex_info_range.start;
+		const std::streamoff tex_info_offset(tmd_start + header.tex_info_range.start);
 		file.seekg(tex_info_offset, std::ios::beg);
 		for (auto i(0U); i < header.tex_info_range.count; i++) {
 			Texture_t tex;
 			read(file, &tex.id);
 			read(file, &tex.blank);
 			read(file, &tex.unknown);
-			for (auto cItt(tex.uv.begin()); cItt != tex.uv.end(); cItt++) {
-				read(file, &(*cItt));
+			for (auto& uv : tex.uv) {
+				read(file, &uv);
 			}
 			data_out.texture_infos.push_back(tex);
 		}
@@ -113,9 +113,9 @@ namespace TMD {
 
 #ifndef SKIP_READ_VERTICES
 		// Read Vertices
-		const std::streamoff vertex_offset = tmd_start + header.vertex_range.start;
+		const std::streamoff vertex_offset(tmd_start + header.vertex_range.start);
 		file.seekg(vertex_offset, std::ios::beg);
-		const auto fl = header.feature_level;
+		const auto& fl = header.feature_level;
 
 #ifdef _DEBUG
 		{
@@ -145,33 +145,33 @@ namespace TMD {
 
 		for (auto i(0U); i < header.vertex_range.count; i++) {
 			Vertex_t vert;
-			if (fl.position) {
-				for (auto pItt(vert.pos.begin()); pItt != vert.pos.end(); pItt++) {
-					read(file, &(*pItt));
+			if (fl._position) {
+				for (auto& pos : vert.pos) {
+					read(file, &pos);
 				}
 			}
 			if (fl.rigging) {
-				for (auto wItt(vert.weight.begin()); wItt != vert.weight.end(); wItt++) {
-					read(file, &(*wItt));
+				for (auto& weight : vert.weight) {
+					read(file, &weight);
 				}
-				for (auto bItt(vert.bone.begin()); bItt != vert.bone.end(); bItt++) {
-					read(file, &(*bItt));
+				for (auto& bone :vert.bone) {
+					read(file, &bone);
 				}
 			}
 			if (fl.normals) {
-				for (auto nItt(vert.normal.begin()); nItt != vert.normal.end(); nItt++) {
-					read(file, &(*nItt));
+				for (auto& normal : vert.normal) {
+					read(file, &normal);
 				}
 			}
 			if (fl.color) {
 				// Unused Ver_Color
-				for (auto cItt(vert.color.begin()); cItt != vert.color.end(); cItt++) {
-					read(file, &(*cItt));
+				for (auto& color : vert.color) {
+					read(file, &color);
 				}
 			}
 			if (fl.uv_0) {
-				for (auto tItt(vert.tex.begin()); tItt != vert.tex.end(); tItt++) {
-					read(file, &(*tItt));
+				for (auto& uv : vert.tex) {
+					read(file, &uv);
 				}
 			}
 			if (fl.uv_1) {
@@ -186,13 +186,13 @@ namespace TMD {
 
 #ifndef SKIP_READ_BONE_HIERARCHIES
 		// Read Bone Hierarchies
-		const std::streamoff bone_hierarchies_offset = tmd_start + header.bone_hierarchy_range.start;
+		const std::streamoff bone_hierarchies_offset(tmd_start + header.bone_hierarchy_range.start);
 		file.seekg(bone_hierarchies_offset, std::ios::beg);
 		for (auto i(0U); i < header.bone_hierarchy_range.count; i++) {
 			BoneHierarchy_t bone_hierarchy;
 			read(file, &bone_hierarchy.hash);
-			for (auto hItt(bone_hierarchy.head_pos.begin()); hItt != bone_hierarchy.head_pos.end(); hItt++) {
-				read(file, &(*hItt));
+			for (auto& head_pos : bone_hierarchy.head_pos) {
+				read(file, &head_pos);
 			}
 			read(file, &bone_hierarchy.parent);
 			read(file, &bone_hierarchy.head);
@@ -203,13 +203,13 @@ namespace TMD {
 
 #ifndef SKIP_READ_BONES
 		// Read Bone Hierarchies
-		const std::streamoff bones_offset = tmd_start + header.bone_range.start;
+		const std::streamoff bones_offset(tmd_start + header.bone_range.start);
 		file.seekg(bones_offset, std::ios::beg);
 		for (auto i(0U); i < header.bone_range.count; i++) {
 			Bone_t bone;
-			for (auto yItt(bone.mat.begin()); yItt != bone.mat.end(); yItt++) {
-				for (auto xItt(yItt->begin()); xItt != yItt->end(); xItt++) {
-					read(file, &(*xItt));
+			for (auto& row : bone.mat) {
+				for (auto& cell : row) {
+					read(file, &cell);
 				}
 			}
 			data_out.bones.push_back(bone);
@@ -219,7 +219,7 @@ namespace TMD {
 
 #ifndef SKIP_READ_OPERATIONS
 		// Read Operations
-		const std::streamoff operation_offset = tmd_start + header.operation_range.start;
+		const std::streamoff operation_offset(tmd_start + header.operation_range.start);
 		file.seekg(operation_offset, std::ios::beg);
 		for (auto i(0U); i < header.operation_range.count; i++) {
 			Operation_t operation;
@@ -236,7 +236,7 @@ namespace TMD {
 		// Copy Commons
 		for (auto vIdx(0U); vIdx < data.vertices.size(); vIdx++) {
 			const RAW::Vertex_t& vert = data.vertices[vIdx];
-			if (fl.position) {
+			if (fl._position) {
 				data_out.vertices.push_back(vert.pos);
 			}
 			if (fl.normals) {
@@ -251,21 +251,21 @@ namespace TMD {
 		}
 
 		// Copy Materials
-		for (auto eItt(sub_entries.begin()); eItt != sub_entries.end(); eItt++) {
-			data_out.materials.push_back(PP::MaterialEntry_t({ eItt->package, eItt->resource }));
+		for (const auto& sub_entry : sub_entries) {
+			data_out.materials.push_back(PP::MaterialEntry_t({ sub_entry.package, sub_entry.resource }));
 		}
 
 		uint8_t curr_mat(0U);
 		uint8_t curr_rig(0U);
 
 
-		for (auto oItt(data.operations.begin()); oItt != data.operations.end(); oItt++) {
-			switch (oItt->type) {
+		for (const auto& operation : data.operations) {
+			switch (operation.type) {
 				case 0x10:
 					// oItt = data.operations.end();
 					break;
 				case 0x20:
-					curr_mat = oItt->value;
+					curr_mat = operation.value;
 					break;
 				case 0x30:
 					{
@@ -273,8 +273,8 @@ namespace TMD {
 						mesh.material_id = curr_mat;
 
 						// Copy Faces
-						for (auto i(0U); i < data.poly_groups[oItt->value].count; i++) {
-							mesh.faces.push_back(data.faces[data.poly_groups[oItt->value].offset + i].vertex_index);
+						for (auto i(0U); i < data.poly_groups[operation.value].count; i++) {
+							mesh.faces.push_back(data.faces[data.poly_groups[operation.value].offset + i].vertex_index);
 						}
 
 						for (auto vIdx(0U); vIdx < data.vertices.size(); vIdx++) {
@@ -305,7 +305,7 @@ namespace TMD {
 					}
 					break;
 				case 0x40:
-					curr_rig = oItt->value;
+					curr_rig = operation.value;
 					break;
 			}
 		}
@@ -361,8 +361,8 @@ namespace TMD {
 		}
 
 		Bone_t::Bone_t() {
-			for (auto rItt(mat.begin()); rItt != mat.end(); rItt++) {
-				rItt->fill(0.0f);
+			for (auto& row : mat) {
+				row.fill(0.0f);
 			}
 		}
 
@@ -422,8 +422,8 @@ void read(std::istream& file, TMD::Header_t* dst) {
 	read(file, &(dst->magic_number));
 	read(file, &(dst->unknown_0));
 	read(file, &(dst->feature_level));
-	for (auto uItt(dst->unknowns.begin()); uItt != dst->unknowns.end(); uItt++) {
-		read(file, &(*uItt));
+	for (auto& unknown : dst->unknowns) {
+		read(file, &unknown);
 	}
 	read(file, &(dst->bounds));
 	read(file, &(dst->bvh_range));
@@ -434,8 +434,8 @@ void read(std::istream& file, TMD::Header_t* dst) {
 	read(file, &(dst->poly_group_range));
 	read(file, &(dst->face_range));
 	read(file, &(dst->vertex_range));
-	for (auto uItt(dst->unknown_offsets.begin()); uItt != dst->unknown_offsets.end(); uItt++) {
-		read(file, &(*uItt));
+	for (auto& unknown_offset : dst->unknown_offsets) {
+		read(file, &unknown_offset);
 	}
 	read(file, &(dst->bone_range));
 	read(file, &(dst->bone_hierarchy_range));

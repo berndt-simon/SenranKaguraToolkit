@@ -43,11 +43,11 @@ void ColladaExporter::write_material_images(std::ostream& out, const TMD::PP::Da
 	{
 		pad++;
 		auto matCtr(0U);
-		for (auto mItt(data.materials.begin()); mItt != data.materials.end(); mItt++) {
-			out << pad << "<image id=\"mat_" << std::setfill('0') << std::setw(2) << matCtr << "_img\" name=\"" << mItt->package << "_" << mItt->material_name << "\">" << std::endl;
+		for (const auto& mat : data.materials) {
+			out << pad << "<image id=\"mat_" << std::setfill('0') << std::setw(2) << matCtr << "_img\" name=\"" << mat.package << "_" << mat.material_name << "\">" << std::endl;
 			{
 				pad++;
-				out << pad << "<init_from>" << _material_resource_prefix << mItt->package << "\\" << mItt->material_name << _material_resource_suffix << "</init_from>" << std::endl;
+				out << pad << "<init_from>" << _material_resource_prefix << mat.package << "\\" << mat.material_name << _material_resource_suffix << "</init_from>" << std::endl;
 				pad--;
 			}
 			out << pad << "</image>" << std::endl;
@@ -89,15 +89,15 @@ void ColladaExporter::write_geometry(std::ostream& out, const TMD::PP::Data_t& d
 				}
 				out << pad << "</vertices>" << std::endl;
 
-				for (auto mItt(data.meshes.begin()); mItt != data.meshes.end(); mItt++) {
-					out << pad << "<triangles count=\"" << mItt->faces.size() << "\">" << std::endl;
+				for (const auto& mesh : data.meshes) {
+					out << pad << "<triangles count=\"" << mesh.faces.size() << "\">" << std::endl;
 					{
 						pad++;
 						out << pad << "<input semantic=\"VERTEX\" offset=\"0\" source=\"#tmd_obj_vert\"/>" << std::endl;
 						out << pad << "<p>" << std::endl;
-						for (auto fItt(mItt->faces.begin()); fItt != mItt->faces.end(); fItt++) {
+						for (const auto& face : mesh.faces) {
 							out << pad;
-							write_geometry_face(out, *fItt, pad);
+							write_geometry_face(out, face, pad);
 							out << std::endl;
 						}
 						out << pad << "</p>";
@@ -154,8 +154,8 @@ void ColladaExporter::write_geometry_position(std::ostream& out, const TMD::PP::
 		out << pad << "<float_array id=\"tmd_obj_pos_array\" count=\"" << floatCnt << "\">" << std::endl;
 		{
 			pad++;
-			for (auto vItt(data.vertices.begin()); vItt != data.vertices.end(); vItt++) {
-				out << pad << (*vItt)[0] << ' ' << (*vItt)[1] << ' ' << (*vItt)[2] << std::endl;
+			for (const auto& vert : data.vertices) {
+				out << pad << vert[0] << ' ' << vert[1] << ' ' << vert[2] << std::endl;
 			}
 			pad--;
 		}
@@ -178,11 +178,11 @@ void ColladaExporter::write_geometry_normal(std::ostream& out, const TMD::PP::Da
 			if (_flip_normals) {
 				flip_fac = -1;
 			}
-			for (auto vItt(data.normals.begin()); vItt != data.normals.end(); vItt++) {
+			for (const auto& normal : data.normals) {
 				out << pad
-					<< static_cast<float>(flip_fac * (*vItt)[0]) << ' '
-					<< static_cast<float>(flip_fac * (*vItt)[1]) << ' '
-					<< static_cast<float>(flip_fac * (*vItt)[2]) << std::endl;
+					<< static_cast<float>(flip_fac * normal[0]) << ' '
+					<< static_cast<float>(flip_fac * normal[1]) << ' '
+					<< static_cast<float>(flip_fac * normal[2]) << std::endl;
 			}
 			pad--;
 		}
@@ -202,10 +202,10 @@ void ColladaExporter::write_geometry_uv(std::ostream& out, const TMD::PP::Data_t
 		out << pad << "<float_array id=\"tmd_obj_uv_array\" count=\"" << floatCnt << "\">" << std::endl;
 		{
 			pad++;
-			for (auto vItt(data.uvs.begin()); vItt != data.uvs.end(); vItt++) {
+			for (const auto& uv : data.uvs) {
 				out << pad
-					<< static_cast<float>((*vItt)[0]) << ' '
-					<< static_cast<float>((*vItt)[1]) << std::endl;
+					<< static_cast<float>(uv[0]) << ' '
+					<< static_cast<float>(uv[1]) << std::endl;
 			}
 			pad--;
 		}

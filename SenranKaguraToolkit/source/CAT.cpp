@@ -2,21 +2,38 @@
 
 #include "FileProcessing.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 
 #include <assert.h>
 
 
+
 namespace CAT {
 
+	Header_t::Header_t()
+		: size(0U)
+		, offsets() {
+	}
 
+	ResourceEntry_t::ResourceEntry_t() 
+		: type(ElementType_e::UNDEFINED)
+		, offset(0U)
+		, sub_entries() {		
+	}
 
-	void load(std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out) {
-		const std::streampos fileStart = file.tellg();
+	void sanatize_archive_name(const std::string& in, std::string& out) {
+		// Assume there is only one valid underscore within an archive name
+		// If more than one underscore is present
+		
+	}
+
+	void load(const std::string& filename, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out) {
+		const std::streampos fileStart(file.tellg());
 
 		// Read Header
-		const uint32_t header_size = read<uint32_t>(file);
+		const uint32_t header_size(read<uint32_t>(file));
 		ResourceEntry_t entry;
 		do {
 			read(file, &entry.offset);
@@ -33,7 +50,7 @@ namespace CAT {
 		const auto entryItter(entries.begin());
 		const auto entriesEnd(entries.end());
 
-		const auto max_level = 3;
+		const auto max_level(3U);
 		std::array<std::string, 3> level_build;
 		auto curr_level = 0;
 		auto itterOffset = -1;
@@ -88,28 +105,31 @@ namespace CAT {
 			}
 		} while (file.tellg() < entries[0].offset + fileStart);
 
+		for (auto entry : entries) {
+			
+		}
+
 		if (debug_out) {
 			std::cout << entries << std::endl;
 		}		
 	}
-
 }
 
 std::ostream& operator<<(std::ostream& out, const CAT::Header_t& header) {
 	out << "Cat-Header:" << std::endl;
 	out << "\tSize: " << std::dec << header.size << " bytes" << std::endl;
-	for (auto offset(header.offsets.begin()); offset < header.offsets.end(); offset++) {
-		out << "\tData-Offset: 0x" << std::hex << std::uppercase << *offset << std::endl;
+	for (const auto& offset : header.offsets) {
+		out << "\tData-Offset: 0x" << std::hex << std::uppercase << offset << std::endl;
 	}
 	return out;
 }
 
 std::ostream& operator<<(std::ostream& out, const std::vector<CAT::ResourceEntry_t>& filetable) {
 	out << "Cat-Entries:" << std::endl;
-	for (auto res(filetable.begin()); res < filetable.end(); res++) {
-		out << "\t" << to_string(res->type) << "-Entry (0x" << std::hex << res->offset << "): " << std::endl;
-		for (auto subres(res->sub_entries.begin()); subres < res->sub_entries.end(); subres++) {
-			out << "\t\tSub-Entry: " << subres->package << "/" << subres->resource << std::endl;
+	for (const auto& res : filetable) {
+		out << "\t" << to_string(res.type) << "-Entry (0x" << std::hex << res.offset << "): " << std::endl;
+		for (const auto& subres : res.sub_entries) {
+			out << "\t\tSub-Entry: " << subres.package << "/" << subres.resource << std::endl;
 		}
 	}
 	return out;

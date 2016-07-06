@@ -2,10 +2,10 @@
 
 #include <string>
 
-static const std::string TYPE_KEY_GXT = "GXT";
-static const std::string TYPE_KEY_TMD = "TMD";
-static const std::string TYPE_KEY_TMD_TOON = "TMD_TOON";
-static const std::string TYPE_KEY_UNDEFINED = "UNDEFINDED";
+static const std::string TYPE_KEY_GXT("GXT");
+static const std::string TYPE_KEY_TMD("TMD");
+static const std::string TYPE_KEY_TMD_TOON("TMD_TOON");
+static const std::string TYPE_KEY_UNDEFINED("UNDEFINDED");
 
 enum class ElementType_e {
 	GXT, TMD, TMD_TOON, UNDEFINED

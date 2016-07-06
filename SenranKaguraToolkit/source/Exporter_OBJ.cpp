@@ -42,27 +42,27 @@ boost::filesystem::path& ObjExporter::mtl_suffix() {
 
 
 void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PP::Data_t& data) {
-	for (auto eItt(data.materials.begin()); eItt != data.materials.end(); eItt++) {
-		mtl << "newmtl " << toString((*eItt)) << std::endl;
+	for (const auto& mat : data.materials) {
+		mtl << "newmtl " << toString(mat) << std::endl;
 		mtl << "illum 0" << std::endl;
-		mtl << "map_Ka " << _material_resource_prefix << eItt->package << "\\" << eItt->material_name << _material_resource_suffix << std::endl << std::endl;
+		mtl << "map_Ka " << _material_resource_prefix << mat.package << "\\" << mat.material_name << _material_resource_suffix << std::endl << std::endl;
 	}
 }
 
 void ObjExporter::write_obj(std::ostream& obj, const TMD::PP::Data_t& data) {
 	obj << "# Converted TMD" << std::endl;
 	obj << "o TMD-Object" << std::endl;
-	for (auto vItt(data.vertices.begin()); vItt != data.vertices.end(); vItt++) {
+	for (const auto& vert : data.vertices) {
 		obj << "v ";
-		obj << static_cast<double>((*vItt)[0]) * _rescale_fator << " ";
-		obj << static_cast<double>((*vItt)[1]) * _rescale_fator << " ";
-		obj << static_cast<double>((*vItt)[2]) * _rescale_fator << std::endl;
+		obj << static_cast<double>(vert[0]) * _rescale_fator << " ";
+		obj << static_cast<double>(vert[1]) * _rescale_fator << " ";
+		obj << static_cast<double>(vert[2]) * _rescale_fator << std::endl;
 	}
 	if (_export_uvs) {
-		for (auto vItt(data.uvs.begin()); vItt != data.uvs.end(); vItt++) {
+		for (const auto& uv : data.uvs) {
 			obj << "vt ";
-			obj << static_cast<float>((*vItt)[0]) / 1024 << " ";
-			obj << static_cast<float>((*vItt)[1]) / -1024 << std::endl;
+			obj << static_cast<float>(uv[0]) / 1024 << " ";
+			obj << static_cast<float>(uv[1]) / -1024 << std::endl;
 		}
 	}
 	if (_export_normals) {
@@ -70,11 +70,11 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PP::Data_t& data) {
 		if (_flip_normals) {
 			flip_fac = -1;
 		}
-		for (auto vItt(data.normals.begin()); vItt != data.normals.end(); vItt++) {
+		for (const auto& normal : data.normals) {
 			obj << "vn ";
-			obj << static_cast<float>(flip_fac * (*vItt)[0]) << " ";
-			obj << static_cast<float>(flip_fac * (*vItt)[1]) << " ";
-			obj << static_cast<float>(flip_fac * (*vItt)[2]) << std::endl;
+			obj << static_cast<float>(flip_fac * normal[0]) << " ";
+			obj << static_cast<float>(flip_fac * normal[1]) << " ";
+			obj << static_cast<float>(flip_fac * normal[2]) << std::endl;
 		}
 	}
 	for (auto mIdx(0U); mIdx < data.meshes.size(); mIdx++) {
@@ -84,11 +84,11 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PP::Data_t& data) {
 		if (_export_materials) {
 			obj << "usemtl " << toString(data.materials[mesh.material_id]) << std::endl;
 		}
-		for (auto fItt(mesh.faces.begin()); fItt != mesh.faces.end(); fItt++) {
+		for (const auto& face : mesh.faces) {
 			obj << "f ";
-			write_face_vertex(obj, *fItt, 0U);
-			write_face_vertex(obj, *fItt, 1U);
-			write_face_vertex(obj, *fItt, 2U);
+			write_face_vertex(obj, face, 0U);
+			write_face_vertex(obj, face, 1U);
+			write_face_vertex(obj, face, 2U);
 			obj << std::endl;
 		}
 	}
