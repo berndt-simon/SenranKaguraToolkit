@@ -32,4 +32,6 @@ namespace GXT {
 	// Read the Contents of a GXT-File
 	// Stores the Content of all found Entries into a given Vector
 	void load(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, std::vector<Entry_t>& entries_out);
+
+	void load_raw(std::istream& file, const std::streamoff gxt_start, std::vector<blob_t>& entries_out);
 }

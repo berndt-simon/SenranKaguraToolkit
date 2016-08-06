@@ -40,6 +40,23 @@ static void process_gxt(std::istream& file, const std::streamoff offset, const s
 	}
 }
 
+static void process_gxt_raw(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
+	std::ifstream file;
+	openToRead(file, in_file.string());
+	std::vector<blob_t> gxt_entries;
+	GXT::load_raw(file, 0, gxt_entries);
+	ResourceDumper dumper;
+	dumper.output_prefix() = out_folder;
+	dumper.output_suffix() = ".dds";
+	for (auto i(0U); i < gxt_entries.size(); i++) {
+		const auto& gxt_entry = gxt_entries[i];
+		std::stringstream number;
+		number << '_' << std::setw(2) << std::setfill('0') << i;
+		dumper.dump({ in_file.stem().string() + number.str() }, gxt_entry);
+		std::cout << "Dump GXT Resource: " << in_file.stem().string() << number.str() << std::endl;
+	}
+}
+
 
 static void process_tmd(std::istream& file, const std::streamoff offset, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& entries, const boost::filesystem::path& out_folder, uint32_t cntr = 0U) {
 	TMD::RAW::Data_t tmd_data_raw;
@@ -67,7 +84,7 @@ static void process_tmd(std::istream& file, const std::streamoff offset, const s
 #else
 	std::cout << "Dumped TMD Resources to Collada " << std::endl;
 #endif // EXPORTER_OBJ
-	
+
 }
 
 static void process_cat(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
@@ -116,6 +133,9 @@ static void process_auto(const boost::filesystem::path& in_file, const boost::fi
 	if (hasEnding(filename_lc, ".cat")) {
 		std::cout << "'" << in_file << "' seems to be a CAT-File." << std::endl;
 		process_cat(in_file, out_folder);
+	} else if (hasEnding(filename_lc, ".gxt")) {
+		std::cout << "'" << in_file << "' seems to be a GXT-File." << std::endl;
+		process_gxt_raw(in_file, out_folder);
 	} else if (hasEnding(filename_lc, "filename.bin")) {
 		std::cout << "'" << in_file << "' seems to be the Filename-File." << std::endl;
 		process_bin(in_file);
@@ -123,9 +143,6 @@ static void process_auto(const boost::filesystem::path& in_file, const boost::fi
 		std::cout << "can't recognize File-Type" << std::endl;
 	}
 
-	// Uncomment the following two Lines to keep the CMD open
-	std::cout << "Press [ENTER] to close" << std::endl;
-	std::cin.ignore();
 }
 
 int main(int argc, char** argv) {
@@ -134,17 +151,26 @@ int main(int argc, char** argv) {
 	// Cmd Handling
 	try {
 		const std::string default_out_folder("out");
-		TCLAP::CmdLine cmd("SenranKagura-Toolkit", ' ', "0.2");
+		TCLAP::CmdLine cmd("SenranKagura-Toolkit", ' ', "0.3");
 		TCLAP::ValueArg<std::string> outFolderArg("o", "output-folder", "Output-Folder - defaults to '" + default_out_folder + "'", false, default_out_folder, "Path as String");
 		TCLAP::ValueArg<std::string> inFileArg("i", "input-file", "Input-File with auto type-recognition", true, "", "Filepath as String");
+		TCLAP::SwitchArg autoClose("s", "silent", "Silent Mode", false);
 		cmd.add(inFileArg);
 		cmd.add(outFolderArg);
+		cmd.add(autoClose);
 		cmd.parse(argc, argv);
 
 		boost::filesystem::path inFile(inFileArg.getValue());
 		boost::filesystem::path outFolder(outFolderArg.getValue());
 
 		process_auto(inFile, outFolder);
+
+		if (!autoClose.getValue()) {
+			// Uncomment the following two Lines to keep the CMD open
+			std::cout << "Press [ENTER] to close" << std::endl;
+			std::cin.ignore();
+		}
+
 	} catch (TCLAP::ArgException& e) {
 		std::cerr << "Error while parsing Cmd-Args: " << e.error() << " for Argument " << e.argId() << std::endl;
 	}
