@@ -9,36 +9,60 @@ Exporter::Exporter()
 	, _flip_normals(false)
 	, _material_resource_suffix(".dds")
 	, _material_resource_prefix("..\\") {
-};
-
-void Exporter::enable_uv_export(bool enable) {
-	_export_uvs = enable;
 }
 
-void Exporter::enable_normal_export(bool enable) {
-	_export_normals = enable;
+bool& Exporter::uv_export() {
+	return _export_uvs;
+}
+bool Exporter::uv_export() const {
+	return _export_uvs;
 }
 
-void Exporter::enable_material_export(bool enable) {
-	_export_materials = enable;
+bool& Exporter::normal_export() {
+	return _export_normals;
+}
+bool Exporter::normal_export() const {
+	return _export_normals;
 }
 
-void Exporter::set_rescale_factor(float rescale_factor) {
-	_rescale_fator = rescale_factor;
+bool& Exporter::material_export() {
+	return _export_materials;
+}
+bool Exporter::material_export() const {
+	return _export_materials;
 }
 
-void Exporter::set_flip_normals(bool flip) {
-	_flip_normals = flip;
+float& Exporter::rescale_factor() {
+	return _rescale_fator;
+}
+float Exporter::rescale_factor() const {
+	return _rescale_fator;
+}
+
+bool& Exporter::flip_normals() {
+	return _flip_normals;
+}
+bool Exporter::flip_normals() const {
+	return _flip_normals;
 }
 
 boost::filesystem::path& Exporter::export_folder() {
+	return _export_folder;
+}
+const boost::filesystem::path& Exporter::export_folder() const {
 	return _export_folder;
 }
 
 std::string& Exporter::material_resource_prefix() {
 	return _material_resource_prefix;
 }
+const std::string& Exporter::material_resource_prefix() const {
+	return _material_resource_prefix;
+}
 
 std::string& Exporter::material_resource_suffix() {
+	return _material_resource_suffix;
+}
+const std::string& Exporter::material_resource_suffix() const {
 	return _material_resource_suffix;
 }

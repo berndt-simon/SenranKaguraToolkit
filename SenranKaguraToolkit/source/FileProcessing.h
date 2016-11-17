@@ -7,11 +7,10 @@
 #include <vector>
 
 // Typedef to represent a single Byte
-typedef unsigned char byte_t;
-static_assert(sizeof(byte_t) == 1, "A Byte_t isn't one Byte");
+using byte_t = unsigned char;
 
 // Typedef to represent a Blob of Data
-typedef std::vector<byte_t> blob_t;
+using blob_t = std::vector<byte_t>;
 
 // Read any Type from a iStream into a corresponding Pointer-Target
 template<typename T>
@@ -33,10 +32,10 @@ inline T read(std::istream& file) {
 std::string archive_name(boost::filesystem::path file, bool full = false);
 
 // Open a File in Binary-Mode to read its Contend
-void openToRead(std::ifstream& file, const boost::filesystem::path& filename);
+void open_to_read(std::ifstream& file, const boost::filesystem::path& filename);
 
 // Open a File in Binary-Mode to write its Contend
-void openToWrite(std::ofstream& file, const boost::filesystem::path& filename);
+void open_to_write(std::ofstream& file, const boost::filesystem::path& filename);
 
 // Report a Message to the Standard Error Output and throw a Exception afterwards
-void reportAndThrow(const std::string& msg);
+void report_and_throw(const std::string& msg);

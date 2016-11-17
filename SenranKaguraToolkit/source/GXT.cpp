@@ -1,6 +1,6 @@
 #include "GXT.h"
 
-#include <assert.h>
+#include <stdexcept>
 #include <iterator>
 #include <ios>
 
@@ -8,19 +8,6 @@
 
 
 namespace GXT {
-
-	Header_t::Header_t()
-		: size(0U)
-		, resource_count(0U)
-		, container_size(0U)
-		, offsets() {
-	}
-
-	Entry_t::Entry_t()
-		: package()
-		, resource()
-		, data() {
-	}
 
 	void load(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, std::vector<Entry_t>& entries_out) {
 		file.seekg(gxt_start, std::ios::beg);
@@ -32,7 +19,9 @@ namespace GXT {
 		read(file, &header.container_size);
 
 		// These Counts should match
-		assert(header.resource_count == sub_entries.size());
+		if(header.resource_count != sub_entries.size()) {
+			std::runtime_error("Resource-Count Mismatch");
+		}
 
 		// Read Offsets
 		for (auto res(0U); res < header.resource_count; res++) {
@@ -57,7 +46,6 @@ namespace GXT {
 
 			file.seekg(resource_start, std::ios::beg);
 			const std::streamoff curr_pos(file.tellg());
-			static_assert(sizeof(char) == sizeof(byte_t), "Size Missmatch");
 			entry.data.resize(resource_size);
 			file.read(reinterpret_cast<char*>(entry.data.data()), resource_size);
 			entries_out.push_back(entry);
@@ -96,7 +84,6 @@ namespace GXT {
 
 			file.seekg(resource_start, std::ios::beg);
 			const std::streamoff curr_pos(file.tellg());
-			static_assert(sizeof(char) == sizeof(byte_t), "Size Missmatch");
 			entry.resize(resource_size);
 			file.read(reinterpret_cast<char*>(entry.data()), resource_size);
 			entries_out.push_back(entry);

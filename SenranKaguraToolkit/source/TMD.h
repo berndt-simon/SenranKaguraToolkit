@@ -46,7 +46,6 @@ namespace TMD {
 		};
 	};
 
-
 	struct Header_t {
 		uint32_t					magic_number;
 		uint16_t					unknown_0;
@@ -69,7 +68,7 @@ namespace TMD {
 
 		bool verify();
 	};
-
+	
 	namespace RAW {
 		struct Vertex_t {
 			std::array<float, 3>	pos;
@@ -78,37 +77,27 @@ namespace TMD {
 			std::array<int8_t, 4>	normal;
 			std::array<uint8_t, 4>	color;
 			std::array<int16_t, 2>	tex;
-
-			Vertex_t();
 		};
 
 		struct Face_t {
 			std::array<uint16_t, 3> vertex_index;
-
-			Face_t();
 		};
 
 		struct PolyGroup_t {
 			uint16_t count;
 			uint16_t unknown;
 			uint32_t offset;
-
-			PolyGroup_t();
 		};
 
 		struct Operation_t {
 			uint8_t value;
 			uint8_t type;
-
-			Operation_t();
 		};
 
 		struct BVH_t {
 			Bounds_t bounds;
 			uint32_t unknown_0;
 			uint32_t unknown_1;
-
-			BVH_t();
 		};
 
 		struct Texture_t {
@@ -116,21 +105,15 @@ namespace TMD {
 			uint32_t blank;
 			uint32_t unknown;
 			std::array<int16_t, 2> uv;
-
-			Texture_t();
 		};
 
 		struct Rig_t {
 			int32_t count;
 			std::array<int32_t, 32> bone;
-
-			Rig_t();
 		};
 
 		struct Bone_t {
 			std::array<std::array<float, 4>, 4> mat;
-
-			Bone_t();
 		};
 
 		struct BoneHierarchy_t {
@@ -138,8 +121,6 @@ namespace TMD {
 			std::array<float, 3> head_pos;
 			int32_t parent;
 			uint32_t head;
-
-			BoneHierarchy_t();
 		};
 
 		struct Data_t {
@@ -162,8 +143,6 @@ namespace TMD {
 		struct BoneWeight_t {
 			uint32_t bone_id;
 			float weight;
-
-			BoneWeight_t();
 		};
 
 		struct Mesh_t {
@@ -177,9 +156,6 @@ namespace TMD {
 			std::string package;
 			std::string material_name;
 		};
-
-
-		std::string toString(const MaterialEntry_t& material_entry);
 
 		struct Data_t {
 			std::vector<decltype(RAW::Vertex_t::pos)> vertices;
@@ -201,6 +177,8 @@ namespace TMD {
 
 
 }
+
+std::ostream& operator<<(std::ostream& out, const TMD::PP::MaterialEntry_t& material_entry);
 
 template<>
 void read(std::istream& file, TMD::Range_t* dst);

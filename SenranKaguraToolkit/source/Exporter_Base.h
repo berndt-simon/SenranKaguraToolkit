@@ -8,18 +8,31 @@
 class Exporter {
 public:
 	Exporter();
+	virtual ~Exporter() = default;
 
-	void enable_uv_export(bool enable = true);
-	void enable_normal_export(bool enable = true);
-	void enable_material_export(bool enable = true);
+	bool& uv_export();
+	bool uv_export() const;
 
-	void set_rescale_factor(float rescale_factor);
-	void set_flip_normals(bool flip = true);
+	bool& normal_export();
+	bool normal_export() const;
+
+	bool& material_export();
+	bool material_export() const;
+	
+	float& rescale_factor();
+	float rescale_factor() const;
+
+	bool& flip_normals();
+	bool flip_normals() const;
 
 	boost::filesystem::path& export_folder();
+	const boost::filesystem::path& export_folder() const;
 
 	std::string& material_resource_prefix();
+	const std::string& material_resource_prefix() const;
+
 	std::string& material_resource_suffix();
+	const std::string& material_resource_suffix() const;
 	
 	virtual void save(const TMD::PP::Data_t& data) = 0;
 

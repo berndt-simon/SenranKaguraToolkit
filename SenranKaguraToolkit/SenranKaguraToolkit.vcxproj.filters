@@ -65,9 +65,6 @@
     <ClCompile Include="source\Exporter_OBJ.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="source\Exporter_Base.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="source\Exporter_Collada.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -80,13 +77,21 @@
     <ClCompile Include="source\TMD.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Boost_FS_Include.props" />
+    <ClCompile Include="source\ElementType.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Exporter_Base.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Character-Codes.txt">
       <Filter>Stuff</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Boost_FS_Include.props">
+      <Filter>Stuff</Filter>
+    </None>
   </ItemGroup>
 </Project>

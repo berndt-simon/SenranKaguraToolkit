@@ -12,12 +12,15 @@ class ResourceDumper {
 public:
 	ResourceDumper();
 	~ResourceDumper() = default;
-
-	void dump(std::initializer_list<std::string> resource_name, blob_t data);
-	void dump(std::initializer_list<std::string> resource_name, const char* data, uint32_t count);
 	
 	boost::filesystem::path& output_prefix();
+	const boost::filesystem::path& output_prefix() const;
+
 	boost::filesystem::path& output_suffix();
+	const boost::filesystem::path& output_suffix() const;
+
+	void dump(std::initializer_list<std::string> resource_name, void* data, size_t count);
+	void dump(std::initializer_list<std::string> resource_name, blob_t data);
 
 private:
 	boost::filesystem::path _output_prefix;

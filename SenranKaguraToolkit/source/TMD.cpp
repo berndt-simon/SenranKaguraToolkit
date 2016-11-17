@@ -1,7 +1,7 @@
 #include "TMD.h"
 
 #include "FileProcessing.h"
-#include <assert.h>
+#include <stdexcept>
 #include <iostream>
 #include <iomanip>
 
@@ -9,6 +9,8 @@ namespace TMD {
 
 	// Uncomment one of these Defines to skip the corresponding Readout-Step
 	// Certain Combination lead to Runtime Errors
+
+// #define _DEBUG
 
 // #define SKIP_READ_FACES
 // #define SKIP_READ_VERTICES
@@ -28,10 +30,14 @@ namespace TMD {
 		file.seekg(tmd_start, std::ios::beg);
 		Header_t& header = data_out.header;
 		read(file, &header);
-		assert(header.verify());
+		if (!header.verify()) {
+			throw std::runtime_error("Verification Failed");
+		}
 		const std::streamoff tmd_header_end(file.tellg());
 		// Header is 160 Bytes long
-		assert(tmd_header_end - tmd_start == 160);
+		if(tmd_header_end - tmd_start != 160) {
+			throw std::runtime_error("Header-Length Mismatch");
+		}
 
 #ifndef SKIP_READ_BVHS
 		// Read BVHs
@@ -44,7 +50,9 @@ namespace TMD {
 			read(file, &bvh.unknown_1);
 			data_out.bvhs.push_back(bvh);
 		}
-		assert(file);
+		if(!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_BVHS	
 
 #ifndef SKIP_READ_RIGS
@@ -59,7 +67,9 @@ namespace TMD {
 			}
 			data_out.rigs.push_back(rig);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_RIGS
 
 #ifndef SKIP_READ_SHADERS
@@ -77,7 +87,9 @@ namespace TMD {
 			read(file, &poly_group.offset);
 			data_out.poly_groups.push_back(poly_group);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_POLY_GROUPS
 
 #ifndef SKIP_READ_FACES
@@ -91,7 +103,9 @@ namespace TMD {
 			}
 			data_out.faces.push_back(face);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_FACES
 
 #ifndef SKIP_READ_TEXTURES
@@ -108,7 +122,9 @@ namespace TMD {
 			}
 			data_out.texture_infos.push_back(tex);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_TEXTURES
 
 #ifndef SKIP_READ_VERTICES
@@ -118,10 +134,11 @@ namespace TMD {
 		const auto& fl = header.feature_level;
 
 #ifdef _DEBUG
+#include <assert.h>
 		{
 			{
 				const FeatureLevel_t test_fl_0{ 0xC7U };
-				assert(test_fl_0.position);
+				assert(test_fl_0._position);
 				assert(test_fl_0.normals);
 				assert(test_fl_0.uv_0);
 				assert(!test_fl_0.uv_1);
@@ -131,7 +148,7 @@ namespace TMD {
 
 			{
 				const FeatureLevel_t test_fl_1{ 0xCFU };
-				assert(test_fl_1.position);
+				assert(test_fl_1._position);
 				assert(test_fl_1.normals);
 				assert(test_fl_1.uv_0);
 				assert(test_fl_1.uv_1);
@@ -141,7 +158,6 @@ namespace TMD {
 
 		}
 #endif // DEBUG
-
 
 		for (auto i(0U); i < header.vertex_range.count; i++) {
 			Vertex_t vert;
@@ -181,7 +197,9 @@ namespace TMD {
 			}
 			data_out.vertices.push_back(vert);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_VERTICES
 
 #ifndef SKIP_READ_BONE_HIERARCHIES
@@ -198,7 +216,9 @@ namespace TMD {
 			read(file, &bone_hierarchy.head);
 			data_out.bone_hierarchies.push_back(bone_hierarchy);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_BONE_HIERARCHIES
 
 #ifndef SKIP_READ_BONES
@@ -214,7 +234,9 @@ namespace TMD {
 			}
 			data_out.bones.push_back(bone);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_BONES
 
 #ifndef SKIP_READ_OPERATIONS
@@ -227,7 +249,9 @@ namespace TMD {
 			read(file, &operation.type);
 			data_out.operations.push_back(operation);
 		}
-		assert(file);
+		if (!file) {
+			throw std::runtime_error(nullptr);
+		}
 #endif // READ_OPERATIONS
 	}
 
@@ -282,7 +306,9 @@ namespace TMD {
 							if (fl.rigging) {
 								const auto& rel_bone_ids = vert.bone;
 								std::array<uint32_t, 4> abs_bone_ids;
-								assert(rel_bone_ids.size() == abs_bone_ids.size());
+								if (rel_bone_ids.size() != abs_bone_ids.size()) {
+									throw std::runtime_error("Bone-Count Mismatch");
+								}
 
 								for (auto b(0U); b < 4U; b++) {
 									abs_bone_ids[b] = data.rigs[curr_rig].bone[rel_bone_ids[b]];
@@ -290,7 +316,9 @@ namespace TMD {
 								mesh.bones.push_back(abs_bone_ids);
 
 								std::array<PP::BoneWeight_t, 4> bone_weights;
-								assert(bone_weights.size() == vert.weight.size());
+								if (bone_weights.size() != vert.weight.size()) {
+									throw std::runtime_error("BoneWeight-Count Mismatch");
+								}
 								for (auto wIdx(0U); wIdx < vert.weight.size(); wIdx++) {
 									if (vert.weight[wIdx] > 0) {
 										bone_weights[wIdx].weight = static_cast<float>(vert.weight[wIdx]);
@@ -314,77 +342,6 @@ namespace TMD {
 	bool Header_t::verify() {
 		// "tmd0" as uint32_t;
 		return magic_number == 0x30646D74U;
-	}
-
-
-	namespace RAW {
-		Face_t::Face_t() {
-			vertex_index.fill(0U);
-		}
-
-		Vertex_t::Vertex_t() {
-			pos.fill(0.0f);
-			weight.fill(0U);
-			bone.fill(0U);
-			normal.fill(0);
-			color.fill(0U);
-			tex.fill(0);
-		}
-
-		PolyGroup_t::PolyGroup_t()
-			: count(0U)
-			, unknown(0U)
-			, offset(0U) {
-		}
-
-		Operation_t::Operation_t()
-			: value(0U)
-			, type(0U) {
-		}
-
-		BVH_t::BVH_t()
-			: bounds()
-			, unknown_0(0U)
-			, unknown_1(0U) {
-		}
-
-		Texture_t::Texture_t()
-			: id(0U)
-			, blank(0U)
-			, unknown(0U) {
-			uv.fill(0);
-		}
-
-		Rig_t::Rig_t()
-			: count(0) {
-			bone.fill(0);
-		}
-
-		Bone_t::Bone_t() {
-			for (auto& row : mat) {
-				row.fill(0.0f);
-			}
-		}
-
-		BoneHierarchy_t::BoneHierarchy_t()
-			: hash(0U)
-			, parent(0)
-			, head(0U) {
-			head_pos.fill(0.0f);
-		}
-	}
-
-
-
-	namespace PP {
-		BoneWeight_t::BoneWeight_t()
-			: bone_id(0U)
-			, weight(0.0f) {
-		}
-
-		std::string toString(const MaterialEntry_t& material_entry) {
-			return material_entry.package + "_" + material_entry.material_name;
-		}
 	}
 
 }
@@ -441,4 +398,9 @@ void read(std::istream& file, TMD::Header_t* dst) {
 	read(file, &(dst->bone_hierarchy_range));
 	read(file, &(dst->tex_info_range));
 	read(file, &(dst->blank));
+}
+
+std::ostream& operator<<(std::ostream& out, const TMD::PP::MaterialEntry_t& material_entry) {
+	out << material_entry.package << '_' << material_entry.material_name;
+	return out;
 }

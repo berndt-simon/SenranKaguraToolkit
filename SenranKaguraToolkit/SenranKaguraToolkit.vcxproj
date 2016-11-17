@@ -31,6 +31,7 @@
     <ClInclude Include="source\ResourceDumper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\ElementType.cpp" />
     <ClCompile Include="source\Exporter_Base.cpp" />
     <ClCompile Include="source\Exporter_Collada.cpp" />
     <ClCompile Include="source\Exporter_OBJ.cpp" />

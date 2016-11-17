@@ -4,11 +4,6 @@
 #include <iostream>
 #include <iomanip>
 
-ObjExporter::ObjExporter()
-	: Exporter()
-	, _obj_suffix(".obj")
-	, _mtl_suffix(".mtl") {
-}
 
 void ObjExporter::save(const TMD::PP::Data_t& data) {
 	boost::filesystem::path output_path(_export_folder);
@@ -17,7 +12,7 @@ void ObjExporter::save(const TMD::PP::Data_t& data) {
 	obj_filename += _obj_suffix;
 
 	std::ofstream obj_out;
-	openToWrite(obj_out, obj_filename);
+	open_to_write(obj_out, obj_filename);
 	write_obj(obj_out, data);
 	obj_out.close();
 
@@ -26,24 +21,15 @@ void ObjExporter::save(const TMD::PP::Data_t& data) {
 		mtl_filename += _mtl_suffix;
 
 		std::ofstream mtl_out;
-		openToWrite(mtl_out, mtl_filename);
+		open_to_write(mtl_out, mtl_filename);
 		write_mtl(mtl_out, data);
 		mtl_out.close();
 	}
 }
 
-boost::filesystem::path& ObjExporter::obj_suffix() {
-	return _obj_suffix;
-}
-
-boost::filesystem::path& ObjExporter::mtl_suffix() {
-	return _mtl_suffix;
-}
-
-
 void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PP::Data_t& data) {
 	for (const auto& mat : data.materials) {
-		mtl << "newmtl " << toString(mat) << std::endl;
+		mtl << "newmtl " << mat << std::endl;
 		mtl << "illum 0" << std::endl;
 		mtl << "map_Ka " << _material_resource_prefix << mat.package << "\\" << mat.material_name << _material_resource_suffix << std::endl << std::endl;
 	}
@@ -82,7 +68,7 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PP::Data_t& data) {
 
 		obj << "g TMD_Mesh_" << std::setfill('0') << std::setw(2) << mIdx << std::endl;
 		if (_export_materials) {
-			obj << "usemtl " << toString(data.materials[mesh.material_id]) << std::endl;
+			obj << "usemtl " << data.materials[mesh.material_id] << std::endl;
 		}
 		for (const auto& face : mesh.faces) {
 			obj << "f ";
@@ -108,4 +94,24 @@ void ObjExporter::write_face_vertex(std::ostream& obj, const std::array<uint16_t
 		obj << "/" << vIdx;
 	}
 	obj << " ";
+}
+
+ObjExporter::ObjExporter()
+	: Exporter()
+	, _obj_suffix(".obj")
+	, _mtl_suffix(".mtl") {
+}
+
+boost::filesystem::path& ObjExporter::obj_suffix() {
+	return _obj_suffix;
+}
+const boost::filesystem::path& ObjExporter::obj_suffix() const {
+	return _obj_suffix;
+}
+
+boost::filesystem::path& ObjExporter::mtl_suffix() {
+	return _mtl_suffix;
+}
+const boost::filesystem::path& ObjExporter::mtl_suffix() const {
+	return _mtl_suffix;
 }

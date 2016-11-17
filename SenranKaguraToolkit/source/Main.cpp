@@ -17,7 +17,7 @@
 #include "Exporter_Collada.h"
 #include "ResourceDumper.h"
 
-#define EXPORTER_OBJ
+//#define EXPORTER_OBJ
 
 static bool hasEnding(const std::string& string, const std::string& ending) {
 	if (string.length() >= ending.length()) {
@@ -42,7 +42,7 @@ static void process_gxt(std::istream& file, const std::streamoff offset, const s
 
 static void process_gxt_raw(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
 	std::ifstream file;
-	openToRead(file, in_file.string());
+	open_to_read(file, in_file.string());
 	std::vector<blob_t> gxt_entries;
 	GXT::load_raw(file, 0, gxt_entries);
 	ResourceDumper dumper;
@@ -66,12 +66,12 @@ static void process_tmd(std::istream& file, const std::streamoff offset, const s
 
 #ifdef EXPORTER_OBJ
 	ObjExporter exporter;
-#else
+#else // EXPORTER_OBJ
 	ColladaExporter exporter;
-	exporter.enable_material_export(false);
-#endif // EXPORTER_OBJ
-	exporter.set_flip_normals(true);
-	exporter.set_rescale_factor(0.01f);
+	exporter.material_export() = false;
+#endif // !EXPORTER_OBJ
+	exporter.flip_normals() = true;
+	exporter.rescale_factor() = 0.01f;
 	exporter.export_folder() = out_folder;
 	exporter.material_resource_prefix() = "..\\img\\";
 	std::stringstream obj_folder_name;
@@ -81,15 +81,15 @@ static void process_tmd(std::istream& file, const std::streamoff offset, const s
 	exporter.save(tmd_data_pp);
 #ifdef EXPORTER_OBJ
 	std::cout << "Dumped TMD Resources to Obj " << std::endl;
-#else
+#else // EXPORTER_OBJ
 	std::cout << "Dumped TMD Resources to Collada " << std::endl;
-#endif // EXPORTER_OBJ
+#endif // !EXPORTER_OBJ
 
 }
 
 static void process_cat(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
 	std::ifstream file;
-	openToRead(file, in_file.string());
+	open_to_read(file, in_file.string());
 	std::vector<CAT::ResourceEntry_t> cat_entries;
 
 	CAT::load(in_file, file, cat_entries, true);
@@ -113,7 +113,7 @@ static void process_cat(const boost::filesystem::path& in_file, const boost::fil
 
 static void process_bin(const boost::filesystem::path& in_file) {
 	std::ifstream file;
-	openToRead(file, in_file.string());
+	open_to_read(file, in_file.string());
 	std::vector<std::string> filenames;
 	Filename::load(file, filenames);
 	file.close();

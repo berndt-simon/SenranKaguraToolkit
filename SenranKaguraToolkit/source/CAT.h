@@ -14,8 +14,6 @@ namespace CAT {
 	
 	// Variable Length Header of a CAT-File
 	struct Header_t {
-		Header_t();
-
 		uint32_t				size;
 		std::vector<uint32_t>	offsets;
 	};
@@ -27,12 +25,9 @@ namespace CAT {
 			std::string resource;
 		};
 
-		ResourceEntry_t();
-
 		ElementType_e type;
 		uint32_t offset;
 		std::vector<SubEntry_t> sub_entries;
-
 	};
 
 	// Read the Contents of a CAT-File

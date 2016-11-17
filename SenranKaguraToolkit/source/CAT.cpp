@@ -6,29 +6,18 @@
 #include <iostream>
 #include <iomanip>
 
-#include <assert.h>
+#include <stdexcept>
 
 // #define RENAME_CONV0
 
 namespace CAT {
-
-	Header_t::Header_t()
-		: size(0U)
-		, offsets() {
-	}
-
-	ResourceEntry_t::ResourceEntry_t() 
-		: type(ElementType_e::UNDEFINED)
-		, offset(0U)
-		, sub_entries() {		
-	}
 
 	void load(const boost::filesystem::path& file_path, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out) {
 		const std::streampos fileStart(file.tellg());
 
 		// Read Header
 		const uint32_t header_size(read<uint32_t>(file));
-		ResourceEntry_t entry;
+		ResourceEntry_t entry{};
 		do {
 			read(file, &entry.offset);
 			if (entry.offset != 0xFFFFFFFF) {
@@ -56,7 +45,7 @@ namespace CAT {
 					{
 						int next_level = curr_level + 1;
 						if (next_level >= max_level) {
-							reportAndThrow("Next Level is unsupported!");
+							report_and_throw("Next Level is unsupported!");
 						}
 						curr_level = next_level;
 						break;
@@ -69,12 +58,15 @@ namespace CAT {
 							if (itterOffset >= entries.size()) {
 								std::cerr << "Entry out of scope" << std::endl;
 								itterOffset--;
-								assert((entryItter + itterOffset)->type == from_string(level_build[0]));
+								if ((entryItter + itterOffset)->type != from_string(level_build[0])) {
+									throw std::runtime_error(nullptr);
+								}
 							} else {
 								(entryItter + itterOffset)->type = from_string(level_build[0]);
 							}
-							assert(!level_build[1].empty());
-							assert(!level_build[2].empty());
+							if (level_build[1].empty() || level_build[2].empty()) {
+								throw std::runtime_error(nullptr);
+							}
 						} else {
 							// Relative-Entry -> Subentry
 							if (level_build[1].empty()) {

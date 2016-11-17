@@ -15,8 +15,6 @@ namespace GXT {
 		uint32_t					resource_count;
 		uint32_t					container_size;
 		std::vector<uint32_t>		offsets;
-
-		Header_t();
 	};
 
 
@@ -25,8 +23,6 @@ namespace GXT {
 		std::string package;
 		std::string resource;
 		blob_t data;
-
-		Entry_t();
 	};
 
 	// Read the Contents of a GXT-File
