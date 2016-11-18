@@ -9,7 +9,7 @@ public:
 	ColladaExporter();
 	~ColladaExporter() = default;
 	
-	void save(const TMD::PP::Data_t& data) override;
+	void save(const TMD::PostProcessed::Data_t& data) override;
 
 	boost::filesystem::path& dae_suffix();
 	const boost::filesystem::path& dae_suffix() const;
@@ -39,6 +39,7 @@ private:
 			for (auto i(0U); i < _padding.level; ++i) {
 				_out << "\t";
 			}
+			_out << val;
 			return _out;
 		}
 
@@ -57,13 +58,14 @@ private:
 	};
 	
 private:
-	void write_document(PaddedOstream& out, const TMD::PP::Data_t& data);
-	void write_material_images(PaddedOstream& out, const TMD::PP::Data_t& data);
+	void write_asset_header(PaddedOstream& out);
+	void write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
+	void write_material_images(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
 
-	void write_geometry(PaddedOstream& out, const TMD::PP::Data_t& data);
-	void write_geometry_position(PaddedOstream& out, const TMD::PP::Data_t& data);
-	void write_geometry_normal(PaddedOstream& out, const TMD::PP::Data_t& data);
-	void write_geometry_uv(PaddedOstream& out, const TMD::PP::Data_t& data);
+	void write_geometry(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
+	void write_geometry_position(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
+	void write_geometry_normal(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
+	void write_geometry_uv(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
 
 	void write_geometry_face(PaddedOstream& out, const std::array<uint16_t, 3>& face);
 	

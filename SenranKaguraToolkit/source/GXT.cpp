@@ -24,7 +24,7 @@ namespace GXT {
 		}
 
 		// Read Offsets
-		for (auto res(0U); res < header.resource_count; res++) {
+		for (auto res(0U); res < header.resource_count; ++res) {
 			header.offsets.push_back(read<uint32_t>(file));
 		}
 
@@ -32,7 +32,7 @@ namespace GXT {
 		file.seekg(header.size + gxt_start, std::ios::beg);
 		const std::streamoff offset_base(file.tellg());
 		const std::streamoff data_end(offset_base + header.container_size);
-		for (auto res(0U); res < header.resource_count; res++) {
+		for (auto res(0U); res < header.resource_count; ++res) {
 			const std::streamoff resource_start(offset_base + header.offsets[res]);
 			std::streamoff resource_size = 0;
 			if (res == header.resource_count - 1) {
@@ -64,7 +64,7 @@ namespace GXT {
 		read(file, &header.container_size);
 
 		// Read Offsets
-		for (auto res(0U); res < header.resource_count; res++) {
+		for (auto res(0U); res < header.resource_count; ++res) {
 			header.offsets.push_back(read<uint32_t>(file));
 		}
 
@@ -72,7 +72,7 @@ namespace GXT {
 		file.seekg(header.size + gxt_start, std::ios::beg);
 		const std::streamoff offset_base(file.tellg());
 		const std::streamoff data_end(offset_base + header.container_size);
-		for (auto res(0U); res < header.resource_count; res++) {
+		for (auto res(0U); res < header.resource_count; ++res) {
 			const std::streamoff resource_start(offset_base + header.offsets[res]);
 			std::streamoff resource_size = 0;
 			if (res == header.resource_count - 1) {

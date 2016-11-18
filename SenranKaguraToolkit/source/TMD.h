@@ -139,7 +139,7 @@ namespace TMD {
 
 	}
 
-	namespace PP {
+	namespace PostProcessed {
 		struct BoneWeight_t {
 			uint32_t bone_id;
 			float weight;
@@ -173,12 +173,12 @@ namespace TMD {
 
 	void load_raw(std::istream& file, const std::streamoff tmd_start, RAW::Data_t& data_out);
 
-	void post_process(const RAW::Data_t& data_in, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PP::Data_t& data_out);
+	void post_process(const RAW::Data_t& data_in, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PostProcessed::Data_t& data_out);
 
 
 }
 
-std::ostream& operator<<(std::ostream& out, const TMD::PP::MaterialEntry_t& material_entry);
+std::ostream& operator<<(std::ostream& out, const TMD::PostProcessed::MaterialEntry_t& material_entry);
 
 template<>
 void read(std::istream& file, TMD::Range_t* dst);

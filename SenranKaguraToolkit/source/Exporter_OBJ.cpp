@@ -5,7 +5,7 @@
 #include <iomanip>
 
 
-void ObjExporter::save(const TMD::PP::Data_t& data) {
+void ObjExporter::save(const TMD::PostProcessed::Data_t& data) {
 	boost::filesystem::path output_path(_export_folder);
 	output_path /= "tmd";
 	boost::filesystem::path obj_filename(output_path);
@@ -27,7 +27,7 @@ void ObjExporter::save(const TMD::PP::Data_t& data) {
 	}
 }
 
-void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PP::Data_t& data) {
+void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PostProcessed::Data_t& data) {
 	for (const auto& mat : data.materials) {
 		mtl << "newmtl " << mat << std::endl;
 		mtl << "illum 0" << std::endl;
@@ -35,7 +35,7 @@ void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PP::Data_t& data) {
 	}
 }
 
-void ObjExporter::write_obj(std::ostream& obj, const TMD::PP::Data_t& data) {
+void ObjExporter::write_obj(std::ostream& obj, const TMD::PostProcessed::Data_t& data) {
 	obj << "# Converted TMD" << std::endl;
 	obj << "o TMD-Object" << std::endl;
 	for (const auto& vert : data.vertices) {
@@ -63,8 +63,8 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PP::Data_t& data) {
 			obj << static_cast<float>(flip_fac * normal[2]) << std::endl;
 		}
 	}
-	for (auto mIdx(0U); mIdx < data.meshes.size(); mIdx++) {
-		const TMD::PP::Mesh_t& mesh = data.meshes[mIdx];
+	for (auto mIdx(0U); mIdx < data.meshes.size(); ++mIdx) {
+		const TMD::PostProcessed::Mesh_t& mesh = data.meshes[mIdx];
 
 		obj << "g TMD_Mesh_" << std::setfill('0') << std::setw(2) << mIdx << std::endl;
 		if (_export_materials) {

@@ -43,7 +43,7 @@ namespace TMD {
 		// Read BVHs
 		const std::streamoff bvh_offset(tmd_start + header.bvh_range.start);
 		file.seekg(bvh_offset, std::ios::beg);
-		for (auto i(0U); i < header.bvh_range.count; i++) {
+		for (auto i(0U); i < header.bvh_range.count; ++i) {
 			BVH_t bvh;
 			read(file, &bvh.bounds);
 			read(file, &bvh.unknown_0);
@@ -59,7 +59,7 @@ namespace TMD {
 		// Read Rigs
 		const std::streamoff rig_offset(tmd_start + header.rig_range.start);
 		file.seekg(rig_offset, std::ios::beg);
-		for (auto i(0U); i < header.rig_range.count; i++) {
+		for (auto i(0U); i < header.rig_range.count; ++i) {
 			Rig_t rig;
 			read(file, &rig.count);
 			for (auto& bone : rig.bone) {
@@ -80,7 +80,7 @@ namespace TMD {
 		// Read Polygroups
 		const std::streamoff poly_group_offset(tmd_start + header.poly_group_range.start);
 		file.seekg(poly_group_offset, std::ios::beg);
-		for (auto i(0U); i < header.poly_group_range.count; i++) {
+		for (auto i(0U); i < header.poly_group_range.count; ++i) {
 			PolyGroup_t poly_group;
 			read(file, &poly_group.count);
 			read(file, &poly_group.unknown);
@@ -96,7 +96,7 @@ namespace TMD {
 		// Read Faces
 		const std::streamoff face_offset(tmd_start + header.face_range.start);
 		file.seekg(face_offset, std::ios::beg);
-		for (auto i(0U); i < header.face_range.count; i++) {
+		for (auto i(0U); i < header.face_range.count; ++i) {
 			Face_t face;
 			for (auto& index : face.vertex_index) {
 				read(file, &index);
@@ -112,7 +112,7 @@ namespace TMD {
 		// Read Texture Infos
 		const std::streamoff tex_info_offset(tmd_start + header.tex_info_range.start);
 		file.seekg(tex_info_offset, std::ios::beg);
-		for (auto i(0U); i < header.tex_info_range.count; i++) {
+		for (auto i(0U); i < header.tex_info_range.count; ++i) {
 			Texture_t tex;
 			read(file, &tex.id);
 			read(file, &tex.blank);
@@ -159,7 +159,7 @@ namespace TMD {
 		}
 #endif // DEBUG
 
-		for (auto i(0U); i < header.vertex_range.count; i++) {
+		for (auto i(0U); i < header.vertex_range.count; ++i) {
 			Vertex_t vert;
 			if (fl._position) {
 				for (auto& pos : vert.pos) {
@@ -206,7 +206,7 @@ namespace TMD {
 		// Read Bone Hierarchies
 		const std::streamoff bone_hierarchies_offset(tmd_start + header.bone_hierarchy_range.start);
 		file.seekg(bone_hierarchies_offset, std::ios::beg);
-		for (auto i(0U); i < header.bone_hierarchy_range.count; i++) {
+		for (auto i(0U); i < header.bone_hierarchy_range.count; ++i) {
 			BoneHierarchy_t bone_hierarchy;
 			read(file, &bone_hierarchy.hash);
 			for (auto& head_pos : bone_hierarchy.head_pos) {
@@ -225,7 +225,7 @@ namespace TMD {
 		// Read Bone Hierarchies
 		const std::streamoff bones_offset(tmd_start + header.bone_range.start);
 		file.seekg(bones_offset, std::ios::beg);
-		for (auto i(0U); i < header.bone_range.count; i++) {
+		for (auto i(0U); i < header.bone_range.count; ++i) {
 			Bone_t bone;
 			for (auto& row : bone.mat) {
 				for (auto& cell : row) {
@@ -243,7 +243,7 @@ namespace TMD {
 		// Read Operations
 		const std::streamoff operation_offset(tmd_start + header.operation_range.start);
 		file.seekg(operation_offset, std::ios::beg);
-		for (auto i(0U); i < header.operation_range.count; i++) {
+		for (auto i(0U); i < header.operation_range.count; ++i) {
 			Operation_t operation;
 			read(file, &operation.value);
 			read(file, &operation.type);
@@ -255,10 +255,10 @@ namespace TMD {
 #endif // READ_OPERATIONS
 	}
 
-	void post_process(const RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PP::Data_t& data_out) {
+	void post_process(const RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PostProcessed::Data_t& data_out) {
 		const FeatureLevel_t& fl = data.header.feature_level;
 		// Copy Commons
-		for (auto vIdx(0U); vIdx < data.vertices.size(); vIdx++) {
+		for (auto vIdx(0U); vIdx < data.vertices.size(); ++vIdx) {
 			const RAW::Vertex_t& vert = data.vertices[vIdx];
 			if (fl._position) {
 				data_out.vertices.push_back(vert.pos);
@@ -276,7 +276,7 @@ namespace TMD {
 
 		// Copy Materials
 		for (const auto& sub_entry : sub_entries) {
-			data_out.materials.push_back(PP::MaterialEntry_t({ sub_entry.package, sub_entry.resource }));
+			data_out.materials.push_back(PostProcessed::MaterialEntry_t({ sub_entry.package, sub_entry.resource }));
 		}
 
 		uint8_t curr_mat(0U);
@@ -293,15 +293,15 @@ namespace TMD {
 					break;
 				case 0x30:
 					{
-						PP::Mesh_t mesh;
+						PostProcessed::Mesh_t mesh;
 						mesh.material_id = curr_mat;
 
 						// Copy Faces
-						for (auto i(0U); i < data.poly_groups[operation.value].count; i++) {
+						for (auto i(0U); i < data.poly_groups[operation.value].count; ++i) {
 							mesh.faces.push_back(data.faces[data.poly_groups[operation.value].offset + i].vertex_index);
 						}
 
-						for (auto vIdx(0U); vIdx < data.vertices.size(); vIdx++) {
+						for (auto vIdx(0U); vIdx < data.vertices.size(); ++vIdx) {
 							const RAW::Vertex_t& vert = data.vertices[vIdx];
 							if (fl.rigging) {
 								const auto& rel_bone_ids = vert.bone;
@@ -310,16 +310,16 @@ namespace TMD {
 									throw std::runtime_error("Bone-Count Mismatch");
 								}
 
-								for (auto b(0U); b < 4U; b++) {
+								for (auto b(0U); b < 4U; ++b) {
 									abs_bone_ids[b] = data.rigs[curr_rig].bone[rel_bone_ids[b]];
 								}
 								mesh.bones.push_back(abs_bone_ids);
 
-								std::array<PP::BoneWeight_t, 4> bone_weights;
+								std::array<PostProcessed::BoneWeight_t, 4> bone_weights;
 								if (bone_weights.size() != vert.weight.size()) {
 									throw std::runtime_error("BoneWeight-Count Mismatch");
 								}
-								for (auto wIdx(0U); wIdx < vert.weight.size(); wIdx++) {
+								for (auto wIdx(0U); wIdx < vert.weight.size(); ++wIdx) {
 									if (vert.weight[wIdx] > 0) {
 										bone_weights[wIdx].weight = static_cast<float>(vert.weight[wIdx]);
 										bone_weights[wIdx].bone_id = mesh.bones[vIdx][wIdx];
@@ -400,7 +400,7 @@ void read(std::istream& file, TMD::Header_t* dst) {
 	read(file, &(dst->blank));
 }
 
-std::ostream& operator<<(std::ostream& out, const TMD::PP::MaterialEntry_t& material_entry) {
+std::ostream& operator<<(std::ostream& out, const TMD::PostProcessed::MaterialEntry_t& material_entry) {
 	out << material_entry.package << '_' << material_entry.material_name;
 	return out;
 }

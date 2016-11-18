@@ -28,8 +28,9 @@ static bool hasEnding(const std::string& string, const std::string& ending) {
 }
 
 static void process_gxt(std::istream& file, const std::streamoff offset, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& entries, const boost::filesystem::path& out_folder) {
-	std::vector<GXT::Entry_t> gxt_entries;
-	GXT::load(file, offset, entries, gxt_entries);
+	using namespace GXT;
+	std::vector<Entry_t> gxt_entries;
+	load(file, offset, entries, gxt_entries);
 	ResourceDumper dumper;
 	dumper.output_prefix() = out_folder;
 	dumper.output_prefix() /= "img";
@@ -41,14 +42,15 @@ static void process_gxt(std::istream& file, const std::streamoff offset, const s
 }
 
 static void process_gxt_raw(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
+	using namespace GXT;
 	std::ifstream file;
 	open_to_read(file, in_file.string());
 	std::vector<blob_t> gxt_entries;
-	GXT::load_raw(file, 0, gxt_entries);
+	load_raw(file, 0, gxt_entries);
 	ResourceDumper dumper;
 	dumper.output_prefix() = out_folder;
 	dumper.output_suffix() = ".dds";
-	for (auto i(0U); i < gxt_entries.size(); i++) {
+	for (auto i(0U); i < gxt_entries.size(); ++i) {
 		const auto& gxt_entry = gxt_entries[i];
 		std::stringstream number;
 		number << '_' << std::setw(2) << std::setfill('0') << i;
@@ -59,10 +61,11 @@ static void process_gxt_raw(const boost::filesystem::path& in_file, const boost:
 
 
 static void process_tmd(std::istream& file, const std::streamoff offset, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& entries, const boost::filesystem::path& out_folder, uint32_t cntr = 0U) {
-	TMD::RAW::Data_t tmd_data_raw;
-	TMD::load_raw(file, offset, tmd_data_raw);
-	TMD::PP::Data_t tmd_data_pp;
-	TMD::post_process(tmd_data_raw, entries, tmd_data_pp);
+	using namespace TMD;
+	RAW::Data_t tmd_data_raw;	
+	load_raw(file, offset, tmd_data_raw);
+	PostProcessed::Data_t tmd_data_pp;
+	post_process(tmd_data_raw, entries, tmd_data_pp);
 
 #ifdef EXPORTER_OBJ
 	ObjExporter exporter;

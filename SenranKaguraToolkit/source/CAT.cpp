@@ -77,7 +77,7 @@ namespace CAT {
 						(entryItter + itterOffset)->sub_entries.push_back(subEntry);
 
 						// Reset State
-						for (auto i(0); i < max_level; i++) {
+						for (auto i(0); i < max_level; ++i) {
 							level_build[i].clear();
 						}
 						curr_level = 0;
