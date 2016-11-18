@@ -95,7 +95,7 @@ static void process_cat(const boost::filesystem::path& in_file, const boost::fil
 	open_to_read(file, in_file.string());
 	std::vector<CAT::ResourceEntry_t> cat_entries;
 
-	CAT::load(in_file, file, cat_entries, true);
+	CAT::load(in_file, file, cat_entries);
 	uint32_t tmd_cntr(0U);
 	for (const auto& entry : cat_entries) {
 		switch (entry.type) {

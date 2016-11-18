@@ -12,7 +12,7 @@
 
 namespace CAT {
 
-	void load(const boost::filesystem::path& file_path, std::istream& file, std::vector<ResourceEntry_t>& entries, bool debug_out) {
+	void load(const boost::filesystem::path& file_path, std::istream& file, std::vector<ResourceEntry_t>& entries) {
 		const std::streampos fileStart(file.tellg());
 
 		// Read Header
@@ -100,11 +100,7 @@ namespace CAT {
 				}
 			}
 		}
-#endif // RENAME_CONV0		
-
-		if (debug_out) {
-			std::cout << entries << std::endl;
-		}		
+#endif // RENAME_CONV0	
 	}
 }
 
