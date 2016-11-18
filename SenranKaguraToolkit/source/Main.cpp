@@ -114,18 +114,22 @@ static void process_cat(const boost::filesystem::path& in_file, const boost::fil
 	file.close();
 }
 
-static void process_bin(const boost::filesystem::path& in_file) {
+static void process_bin(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
+	using namespace Filename;
 	std::ifstream file;
 	open_to_read(file, in_file.string());
 	std::vector<std::string> filenames;
-	Filename::load(file, filenames);
+	load(file, filenames);
 	file.close();
 
-
 	std::cout << "Contend of File:" << std::endl;
+	std::ofstream file_out;
+	file_out.open((out_folder / "filenames.txt").c_str(), std::ios::out);
 	for (const auto& filename : filenames) {
 		std::cout << "\t" << filename << std::endl;
+		file_out << filename << std::endl;
 	}
+	file_out.close();
 }
 
 static void process_auto(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
@@ -141,11 +145,30 @@ static void process_auto(const boost::filesystem::path& in_file, const boost::fi
 		process_gxt_raw(in_file, out_folder);
 	} else if (hasEnding(filename_lc, "filename.bin")) {
 		std::cout << "'" << in_file << "' seems to be the Filename-File." << std::endl;
-		process_bin(in_file);
+		process_bin(in_file, out_folder);
 	} else {
 		std::cout << "can't recognize File-Type" << std::endl;
 	}
+}
 
+static void process_batch(const boost::filesystem::path& in_file, const boost::filesystem::path& out_folder) {
+	std::cout << "Try to Batch-Process Content of '" << in_file << "'..." << std::endl;
+	std::ifstream batchfile;
+	batchfile.open(in_file.c_str(), std::ios::in);
+	std::string line_filename;
+	while (std::getline(batchfile, line_filename)) {
+		try {
+			const auto abs_path(boost::filesystem::canonical(line_filename, in_file.parent_path()));
+			try {
+				process_auto(abs_path, out_folder);
+			} catch (const std::exception& e) {
+				std::cerr << "Can't process '" << abs_path << "'!" << std::endl;
+			}
+			
+		} catch (const std::exception& e) {
+			std::cerr << "Can't find  '" << line_filename << "'!" << std::endl;
+		}
+	}
 }
 
 int main(int argc, char** argv) {
@@ -158,15 +181,21 @@ int main(int argc, char** argv) {
 		TCLAP::ValueArg<std::string> outFolderArg("o", "output-folder", "Output-Folder - defaults to '" + default_out_folder + "'", false, default_out_folder, "Path as String");
 		TCLAP::ValueArg<std::string> inFileArg("i", "input-file", "Input-File with auto type-recognition", true, "", "Filepath as String");
 		TCLAP::SwitchArg autoClose("s", "silent", "Silent Mode", false);
+		TCLAP::SwitchArg batch("b", "batch", "Batch Mode", false);
 		cmd.add(inFileArg);
 		cmd.add(outFolderArg);
 		cmd.add(autoClose);
+		cmd.add(batch);
 		cmd.parse(argc, argv);
 
 		boost::filesystem::path inFile(inFileArg.getValue());
 		boost::filesystem::path outFolder(outFolderArg.getValue());
 
-		process_auto(inFile, outFolder);
+		if (batch.getValue()) {
+			process_batch(inFile, outFolder);
+		} else {
+			process_auto(inFile, outFolder);
+		}		
 
 		if (!autoClose.getValue()) {
 			// Uncomment the following two Lines to keep the CMD open
