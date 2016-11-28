@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
+#include <limits>
+
 
 namespace TMD {
 
@@ -35,7 +38,7 @@ namespace TMD {
 		}
 		const std::streamoff tmd_header_end(file.tellg());
 		// Header is 160 Bytes long
-		if(tmd_header_end - tmd_start != 160) {
+		if (tmd_header_end - tmd_start != 160) {
 			throw std::runtime_error("Header-Length Mismatch");
 		}
 
@@ -50,7 +53,7 @@ namespace TMD {
 			read(file, &bvh.unknown_1);
 			data_out.bvhs.push_back(bvh);
 		}
-		if(!file) {
+		if (!file) {
 			throw std::runtime_error(nullptr);
 		}
 #endif // READ_BVHS	
@@ -170,7 +173,7 @@ namespace TMD {
 				for (auto& weight : vert.weight) {
 					read(file, &weight);
 				}
-				for (auto& bone :vert.bone) {
+				for (auto& bone : vert.bone) {
 					read(file, &bone);
 				}
 			}
@@ -286,11 +289,15 @@ namespace TMD {
 		for (const auto& operation : data.operations) {
 			switch (operation.type) {
 				case 0x10:
-					// oItt = data.operations.end();
-					break;
+					{
+						//goto operation_processing_end;
+						break;
+					}
 				case 0x20:
-					curr_mat = operation.value;
-					break;
+					{
+						curr_mat = operation.value;
+						break;
+					}
 				case 0x30:
 					{
 						PostProcessed::Mesh_t mesh;
@@ -330,13 +337,16 @@ namespace TMD {
 						}
 
 						data_out.meshes.push_back(mesh);
+						break;
 					}
-					break;
 				case 0x40:
-					curr_rig = operation.value;
-					break;
+					{
+						curr_rig = operation.value;
+						break;
+					}
 			}
 		}
+operation_processing_end:;
 	}
 
 	bool Header_t::verify() {
@@ -403,4 +413,18 @@ void read(std::istream& file, TMD::Header_t* dst) {
 std::ostream& operator<<(std::ostream& out, const TMD::PostProcessed::MaterialEntry_t& material_entry) {
 	out << material_entry.package << '_' << material_entry.material_name;
 	return out;
+}
+
+
+std::array<float, 2> TMD::PostProcessed::Data_t::normalize_uvs(const decltype(RAW::Vertex_t::tex)& uvs) {
+	return std::array<float, 2>{static_cast<float>(uvs[0]) / 1024, static_cast<float>(uvs[1]) / -1024};
+}
+
+
+std::array<float, 3> TMD::PostProcessed::Data_t::normalize_normals(const decltype(RAW::Vertex_t::normal)& normals) {
+	using inner_t = decltype(RAW::Vertex_t::normal)::value_type;
+	return std::array<float, 3>{
+		std::max(static_cast<float>(normals[0]) / std::numeric_limits<inner_t>::max(), -1.0f),
+		std::max(static_cast<float>(normals[1]) / std::numeric_limits<inner_t>::max(), -1.0f),
+		std::max(static_cast<float>(normals[2]) / std::numeric_limits<inner_t>::max(), -1.0f)};
 }

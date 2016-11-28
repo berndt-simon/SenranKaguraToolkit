@@ -1,6 +1,10 @@
 #include "Exporter_Collada.h"
 
 #include <iomanip>
+#include <assimp\material.h>
+#include <assimp\mesh.h>
+#include <assimp\scene.h>
+#include <assimp\Exporter.hpp>
 
 ColladaExporter::ColladaExporter()
 	: Exporter()
@@ -20,15 +24,50 @@ void ColladaExporter::save(const TMD::PostProcessed::Data_t& data) {
 	boost::filesystem::path dae_filename(output_path);
 	dae_filename += _dae_suffix;
 
-	std::ofstream dae_out;
+	/*std::ofstream dae_out;
 	open_to_write(dae_out, dae_filename);
 	LeftPad_t pad{ 0 };
 	PaddedOstream pad_out(dae_out, pad);
 	write_document(pad_out, data);
-	dae_out.close();
+	dae_out.close();*/
+
+	aiScene scene;
+	create_assimp_scene(scene, data);
+
+	Assimp::Exporter exporter;
+	auto export_format = exporter.GetExportFormatDescription(0);
+
+	exporter.Export(&scene, export_format->id, dae_filename.string().c_str());
+
 }
 
-void ColladaExporter::write_asset_header(PaddedOstream& out) {
+void ColladaExporter::create_assimp_scene(aiScene& scene, const TMD::PostProcessed::Data_t& data) const {
+	scene.mRootNode = new aiNode();
+
+	scene.mRootNode->mMeshes = new unsigned[data.meshes.size()];
+	scene.mRootNode->mMeshes[0] = 0;
+	scene.mRootNode->mNumMeshes = 1;
+
+	scene.mMeshes = new aiMesh*[data.meshes.size()];
+	for (auto mesh_idx(0U); mesh_idx < data.meshes.size(); ++mesh_idx) {
+		scene.mMeshes[mesh_idx] = new aiMesh();
+		scene.mNumMeshes = data.meshes.size();
+		auto& mesh_out = *scene.mMeshes[0];
+		const auto& mesh_in = data.meshes[mesh_idx];
+		mesh_out.mNumVertices = data.vertices.size();
+		mesh_out.mVertices = new aiVector3D[data.vertices.size()];
+		for (auto vert_idx(0U); vert_idx < data.vertices.size(); ++vert_idx) {
+			const auto& vert_in(data.vertices[vert_idx]);
+			mesh_out.mVertices[vert_idx] = aiVector3D(vert_in[0], vert_in[1], vert_in[2]);
+		}
+	}
+	
+
+
+
+}
+
+void ColladaExporter::write_asset_header(PaddedOstream& out) const {
 	out << "<asset>" << std::endl;
 	{
 		Block_t b(out.padding());
@@ -37,39 +76,63 @@ void ColladaExporter::write_asset_header(PaddedOstream& out) {
 	out << "</asset>" << std::endl;
 }
 
-void ColladaExporter::write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) {
+void ColladaExporter::write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
 	out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
 	out << "<COLLADA xmlns=\"http://www.collada.org/2005/11/COLLADASchema\" version=\"1.4.1\">" << std::endl;
 	{
-		write_asset_header(out);
 		Block_t b(out.padding());
-		if (_export_materials) {
-			write_material_images(out, data);
-		}
+		write_asset_header(out);
 		write_geometry(out, data);
+		if (_export_materials) {
+			write_library_image(out, data);
+			write_library_materials(out, data);
+		}
 	}
 	out << "</COLLADA>" << std::endl;
 }
 
-void ColladaExporter::write_material_images(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) {
+void ColladaExporter::write_library_materials(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
+	out << "<library_materials>" << std::endl;
+	{
+		Block_t b(out.padding());
+		auto mat_cnt(0U);
+		for (const auto& mat : data.materials) {
+			out << "<material id=\"mat_" << std::setfill('0') << std::setw(2) << mat_cnt << "\" name=\"mat_" << mat.package << "_" << mat.material_name << "\">" << std::endl;
+			{
+				Block_t b(out.padding());
+				out << "<instance_effect>";
+				{
+					Block_t b(out.padding());
+					out << _material_resource_prefix << mat.package << "\\" << mat.material_name << _material_resource_suffix << std::endl;
+				}
+				out << "</instance_effect>" << std::endl;
+			}
+			out << "</material>" << std::endl;
+			++mat_cnt;
+		}
+	}
+	out << "</library_materials>" << std::endl;
+}
+
+void ColladaExporter::write_library_image(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
 	out << "<library_images>" << std::endl;
 	{
 		Block_t b(out.padding());
-		auto matCtr(0U);
+		auto tex_cnt(0U);
 		for (const auto& mat : data.materials) {
-			out << "<image id=\"mat_" << std::setfill('0') << std::setw(2) << matCtr << "_img\" name=\"" << mat.package << "_" << mat.material_name << "\">" << std::endl;
+			out << "<image id=\"tex_" << std::setfill('0') << std::setw(2) << tex_cnt << "_img\" name=\"tex_" << mat.package << "_" << mat.material_name << "\">" << std::endl;
 			{
 				Block_t b(out.padding());
 				out << "<init_from>" << _material_resource_prefix << mat.package << "\\" << mat.material_name << _material_resource_suffix << "</init_from>" << std::endl;
 			}
 			out << "</image>" << std::endl;
-			matCtr++;
+			++tex_cnt;
 		}
 	}
 	out << "</library_images>" << std::endl;
 }
 
-void ColladaExporter::write_geometry(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) {
+void ColladaExporter::write_geometry(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
 	out << "<library_geometries>" << std::endl;
 	{
 		Block_t b(out.padding());
@@ -154,7 +217,7 @@ void ColladaExporter::write_geometry(PaddedOstream& out, const TMD::PostProcesse
 }
 
 
-void ColladaExporter::write_geometry_position(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) {
+void ColladaExporter::write_geometry_position(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
 	out << "<source id=\"tmd_obj_pos\">" << std::endl;
 	{
 		Block_t b(out.padding());
@@ -164,11 +227,11 @@ void ColladaExporter::write_geometry_position(PaddedOstream& out, const TMD::Pos
 			Block_t b(out.padding());
 			out << "";
 			for (const auto& vert : data.vertices) {
-				static_cast<std::ostream&>(out) 
-					<< vert[0] << ' ' 
-					<< vert[1] << ' ' 
+				static_cast<std::ostream&>(out)
+					<< vert[0] << ' '
+					<< vert[1] << ' '
 					<< vert[2] << ' ';
-			} 
+			}
 			static_cast<std::ostream&>(out) << std::endl;
 		}
 		out << "</float_array>" << std::endl;
@@ -177,7 +240,7 @@ void ColladaExporter::write_geometry_position(PaddedOstream& out, const TMD::Pos
 	out << "</source>" << std::endl;
 }
 
-void ColladaExporter::write_geometry_normal(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) {
+void ColladaExporter::write_geometry_normal(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
 	out << "<source id=\"tmd_obj_norm\">" << std::endl;
 	{
 		Block_t b(out.padding());
@@ -191,7 +254,7 @@ void ColladaExporter::write_geometry_normal(PaddedOstream& out, const TMD::PostP
 			}
 			out << "";
 			for (const auto& normal : data.normals) {
-				static_cast<std::ostream&>(out) 
+				static_cast<std::ostream&>(out)
 					<< static_cast<float>(flip_fac * normal[0]) << ' '
 					<< static_cast<float>(flip_fac * normal[1]) << ' '
 					<< static_cast<float>(flip_fac * normal[2]) << ' ';
@@ -204,11 +267,7 @@ void ColladaExporter::write_geometry_normal(PaddedOstream& out, const TMD::PostP
 	out << "</source>" << std::endl;
 }
 
-static std::array<float, 2> normalize_uv_coords(const std::array<int16_t, 2>& uv_int) {
-	return std::array<float, 2>{static_cast<float>(uv_int[0]) / 1024, static_cast<float>(uv_int[1]) / -1024};
-}
-
-void ColladaExporter::write_geometry_uv(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) {
+void ColladaExporter::write_geometry_uv(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const {
 	out << "<source id=\"tmd_obj_uv\">" << std::endl;
 	{
 		Block_t b(out.padding());
@@ -218,7 +277,7 @@ void ColladaExporter::write_geometry_uv(PaddedOstream& out, const TMD::PostProce
 			Block_t b(out.padding());
 			out << "";
 			for (const auto& uv_int : data.uvs) {
-				const auto uv = normalize_uv_coords(uv_int);
+				const auto uv = TMD::PostProcessed::Data_t::normalize_uvs(uv_int);
 				static_cast<std::ostream&>(out)
 					<< uv[0] << ' ' << uv[1] << ' ';
 			}
@@ -230,7 +289,7 @@ void ColladaExporter::write_geometry_uv(PaddedOstream& out, const TMD::PostProce
 	out << "</source>" << std::endl;
 }
 
-void ColladaExporter::write_geometry_accessor_3d(PaddedOstream& out, const std::string& source_id, uint32_t count) {
+void ColladaExporter::write_geometry_accessor_3d(PaddedOstream& out, const std::string& source_id, uint32_t count) const {
 	out << "<technique_common>" << std::endl;
 	{
 		Block_t b(out.padding());
@@ -246,7 +305,7 @@ void ColladaExporter::write_geometry_accessor_3d(PaddedOstream& out, const std::
 	out << "</technique_common>" << std::endl;
 }
 
-void ColladaExporter::write_geometry_accessor_uv(PaddedOstream& out, const std::string& source_id, uint32_t count) {
+void ColladaExporter::write_geometry_accessor_uv(PaddedOstream& out, const std::string& source_id, uint32_t count) const {
 	out << "<technique_common>" << std::endl;
 	{
 		Block_t b(out.padding());

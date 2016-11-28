@@ -8,6 +8,10 @@
 
 
 namespace GXT {
+	std::string to_string(const Entry_t& entry) {
+		return entry.package + '/' + entry.resource;
+	}
+
 
 	void load(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, std::vector<Entry_t>& entries_out) {
 		file.seekg(gxt_start, std::ios::beg);

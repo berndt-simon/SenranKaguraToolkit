@@ -40,15 +40,14 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PostProcessed::Data_t&
 	obj << "o TMD-Object" << std::endl;
 	for (const auto& vert : data.vertices) {
 		obj << "v ";
-		obj << static_cast<double>(vert[0]) * _rescale_fator << " ";
-		obj << static_cast<double>(vert[1]) * _rescale_fator << " ";
+		obj << static_cast<double>(vert[0]) * _rescale_fator << ' ';
+		obj << static_cast<double>(vert[1]) * _rescale_fator << ' ';
 		obj << static_cast<double>(vert[2]) * _rescale_fator << std::endl;
 	}
 	if (_export_uvs) {
 		for (const auto& uv : data.uvs) {
-			obj << "vt ";
-			obj << static_cast<float>(uv[0]) / 1024 << " ";
-			obj << static_cast<float>(uv[1]) / -1024 << std::endl;
+			const auto uvs = TMD::PostProcessed::Data_t::normalize_uvs(uv);
+			obj << "vt " << uvs[0] << ' ' << uvs[1] << std::endl;
 		}
 	}
 	if (_export_normals) {
@@ -56,11 +55,12 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PostProcessed::Data_t&
 		if (_flip_normals) {
 			flip_fac = -1;
 		}
-		for (const auto& normal : data.normals) {
+		for (const auto& norm : data.normals) {
+			const auto normal = TMD::PostProcessed::Data_t::normalize_normals(norm);
 			obj << "vn ";
-			obj << static_cast<float>(flip_fac * normal[0]) << " ";
-			obj << static_cast<float>(flip_fac * normal[1]) << " ";
-			obj << static_cast<float>(flip_fac * normal[2]) << std::endl;
+			obj << flip_fac * normal[0] << ' ';
+			obj << flip_fac * normal[1] << ' ';
+			obj << flip_fac * normal[2] << std::endl;
 		}
 	}
 	for (auto mIdx(0U); mIdx < data.meshes.size(); ++mIdx) {
@@ -85,15 +85,15 @@ void ObjExporter::write_face_vertex(std::ostream& obj, const std::array<uint16_t
 	const uint16_t vIdx(vertices[idx] + 1);
 	obj << vIdx;
 	if (_export_uvs || _export_normals) {
-		obj << "/";
+		obj << '/';
 		if (_export_uvs) {
 			obj << vIdx;
 		}
 	}
 	if (_export_normals) {
-		obj << "/" << vIdx;
+		obj << '/' << vIdx;
 	}
-	obj << " ";
+	obj << ' ';
 }
 
 ObjExporter::ObjExporter()

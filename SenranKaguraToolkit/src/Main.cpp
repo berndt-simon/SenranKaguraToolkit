@@ -17,7 +17,7 @@
 #include "Exporter_Collada.h"
 #include "ResourceDumper.h"
 
-//#define EXPORTER_OBJ
+#define EXPORTER_OBJ
 
 static bool hasEnding(const std::string& string, const std::string& ending) {
 	if (string.length() >= ending.length()) {
@@ -59,11 +59,10 @@ static void process_gxt_raw(const boost::filesystem::path& in_file, const boost:
 	}
 }
 
-
 static void process_tmd(std::istream& file, const std::streamoff offset, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& entries, const boost::filesystem::path& out_folder, uint32_t cntr = 0U) {
 	using namespace TMD;
 	RAW::Data_t tmd_data_raw;	
-	load_raw(file, offset, tmd_data_raw);
+	load_raw(file, offset, tmd_data_raw); 
 	PostProcessed::Data_t tmd_data_pp;
 	post_process(tmd_data_raw, entries, tmd_data_pp);
 
@@ -71,7 +70,7 @@ static void process_tmd(std::istream& file, const std::streamoff offset, const s
 	ObjExporter exporter;
 #else // EXPORTER_OBJ
 	ColladaExporter exporter;
-	exporter.material_export() = false;
+	exporter.material_export() = true;
 #endif // !EXPORTER_OBJ
 	exporter.flip_normals() = true;
 	exporter.rescale_factor() = 0.01f;

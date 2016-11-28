@@ -166,6 +166,9 @@ namespace TMD {
 			std::vector<MaterialEntry_t> materials;
 
 			std::vector<Mesh_t> meshes;
+
+			static std::array<float, 2> normalize_uvs(const decltype(RAW::Vertex_t::tex)& uvs);
+			static std::array<float, 3> normalize_normals(const decltype(RAW::Vertex_t::normal)& normals);
 		};
 	}
 

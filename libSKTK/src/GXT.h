@@ -25,6 +25,8 @@ namespace GXT {
 		blob_t data;
 	};
 
+	std::string to_string(const Entry_t& entry);
+
 	// Read the Contents of a GXT-File
 	// Stores the Content of all found Entries into a given Vector
 	void load(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, std::vector<Entry_t>& entries_out);

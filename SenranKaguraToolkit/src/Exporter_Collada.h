@@ -4,11 +4,13 @@
 #include <iosfwd>
 #include <ostream>
 
-class ColladaExporter :  public Exporter {
+#include <assimp\scene.h>
+
+class ColladaExporter : public Exporter {
 public:
 	ColladaExporter();
 	~ColladaExporter() = default;
-	
+
 	void save(const TMD::PostProcessed::Data_t& data) override;
 
 	boost::filesystem::path& dae_suffix();
@@ -56,21 +58,22 @@ private:
 		std::ostream& _out;
 
 	};
-	
+
 private:
-	void write_asset_header(PaddedOstream& out);
-	void write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
-	void write_material_images(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
+	void create_assimp_scene(aiScene& assimp_scene, const TMD::PostProcessed::Data_t& data) const;
 
-	void write_geometry(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
-	void write_geometry_position(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
-	void write_geometry_normal(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
-	void write_geometry_uv(PaddedOstream& out, const TMD::PostProcessed::Data_t& data);
+	void write_asset_header(PaddedOstream& out) const;
+	void write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
+	void write_library_materials(PaddedOstream& out, const TMD::PostProcessed::Data_t & data) const;
+	void write_library_image(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
 
-	void write_geometry_face(PaddedOstream& out, const std::array<uint16_t, 3>& face);
-	
-	void write_geometry_accessor_3d(PaddedOstream& out, const std::string& source_id, uint32_t count);
-	void write_geometry_accessor_uv(PaddedOstream& out, const std::string& source_id, uint32_t count);
+	void write_geometry(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
+	void write_geometry_position(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
+	void write_geometry_normal(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
+	void write_geometry_uv(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
+
+	void write_geometry_accessor_3d(PaddedOstream& out, const std::string& source_id, uint32_t count) const;
+	void write_geometry_accessor_uv(PaddedOstream& out, const std::string& source_id, uint32_t count) const;
 
 	boost::filesystem::path _dae_suffix;
 

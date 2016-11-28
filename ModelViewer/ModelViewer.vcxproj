@@ -18,26 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Boost_Include.props" />
-    <None Include="source\Assimp_Include.props" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Exporter_Base.cpp" />
-    <ClCompile Include="src\Exporter_Collada.cpp" />
-    <ClCompile Include="src\Exporter_OBJ.cpp" />
-    <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\ResourceDumper.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Exporter_Base.h" />
-    <ClInclude Include="src\Exporter_Collada.h" />
-    <ClInclude Include="src\Exporter_OBJ.h" />
-    <ClInclude Include="src\ResourceDumper.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{046A5B83-2F31-4B72-8C23-F1411C81C707}</ProjectGuid>
-    <RootNamespace>SenranKaguraToolkit</RootNamespace>
+    <ProjectGuid>{5235AFC1-4F70-4CFE-A34D-5AB3EA9B66CB}</ProjectGuid>
+    <RootNamespace>ModelViewer</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -74,51 +57,48 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="Assimp_Include.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="Assimp_Include.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="Assimp_Include.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="Assimp_Include.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>SKTK</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>SKTK</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>SKTK</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>SKTK</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)External\tclap\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libSKTK.lib;libboost_filesystem-vc140-mt-gd-1_60.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libSBGLpp.lib;libSKTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,11 +106,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)External\tclap\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libSKTK.lib;libboost_filesystem-vc140-mt-gd-1_60.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libSBGLpp.lib;libSKTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -140,13 +121,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)External\tclap\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libSKTK.lib;libboost_filesystem-vc140-mt-1_60.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libSBGLpp.lib;libSKTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,15 +138,38 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)External\tclap\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libSKTK.lib;libboost_filesystem-vc140-mt-1_60.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libSBGLpp.lib;libSKTK.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Bounds.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\imgui\imgui.cpp" />
+    <ClCompile Include="src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\ShaderAssembler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Bounds.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\FrameCounter.h" />
+    <ClInclude Include="src\imgui\imconfig.h" />
+    <ClInclude Include="src\imgui\imgui.h" />
+    <ClInclude Include="src\imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="src\imgui\imgui_internal.h" />
+    <ClInclude Include="src\imgui\stb_rect_pack.h" />
+    <ClInclude Include="src\imgui\stb_textedit.h" />
+    <ClInclude Include="src\imgui\stb_truetype.h" />
+    <ClInclude Include="src\ShaderAssembler.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -247,3 +247,7 @@ ModelManifest.xml
 /out
 /blend
 /External/ticpp/include
+/TamsoftPC_TMD.ms
+/Tamsoft_CAT.bms
+/Tamsoft_GXT.bms
+/imgui.ini

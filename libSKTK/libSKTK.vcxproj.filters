@@ -14,43 +14,51 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Stuff">
-      <UniqueIdentifier>{45af1257-567b-4d7b-9ad4-72ef8278d0de}</UniqueIdentifier>
+      <UniqueIdentifier>{5eea2b04-7ff6-4e60-bcb5-a5b5408cdabc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="source\Assimp_Include.props">
+    <Text Include="Character-Codes.txt">
       <Filter>Stuff</Filter>
-    </None>
-    <None Include="..\Boost_Include.props" />
+    </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Exporter_Base.cpp">
+    <ClCompile Include="src\CAT.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\Exporter_Collada.cpp">
+    <ClCompile Include="src\ElementType.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\Exporter_OBJ.cpp">
+    <ClCompile Include="src\Filename.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\Main.cpp">
+    <ClCompile Include="src\FileProcessing.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\ResourceDumper.cpp">
+    <ClCompile Include="src\GXT.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TMD.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Exporter_Base.h">
+    <ClInclude Include="src\CAT.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\Exporter_Collada.h">
+    <ClInclude Include="src\ElementType.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\Exporter_OBJ.h">
+    <ClInclude Include="src\Filename.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\ResourceDumper.h">
+    <ClInclude Include="src\FileProcessing.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GXT.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TMD.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
