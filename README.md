@@ -14,8 +14,14 @@ Things that work at the Moment:
 * Read Content of TMD-Files (standalone or within a CAT-File)
 * Dump TMD-Content as OBJ-Files - Vertex/Normals/UVs within obj, Materials as *.mtl Reference  
  OBJ does not support Bones/Rigging but the nessecary Data is already available.
+* Dump TMD-Content as DAE-Files - Using Assimp [WIP]
+* View Content of .CAT Files (Images and 3D-Models) using a separate Viewer Application
+ Open Files by drag-over-exe or using Filename as Start-Parameter
+ To view 3D-Models with Textures also provide relevant Texture-CAT-File
 
-I dared to require Boost::Filesystem because working without it would be a mess..
+I dared to require Boost::Filesystem because working without it would be a mess.  
+To build the Toolkit [Assimp](http://www.assimp.org/) is required.  
+To build the Viewer the [libSBGLpp Library](https://github.com/berndt-simon/libSBGLpp) is required.
 
 As an Example - Character exported as OBJ - Rendered with Blender
 <img src="blender_export.png" width="512">
