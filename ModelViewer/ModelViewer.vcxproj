@@ -50,26 +50,26 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\libSBGLpp\OpenGL_Includes.props" />
+    <Import Project="..\..\libSBGLpp\GLFW_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\libSBGLpp\OpenGL_Includes.props" />
+    <Import Project="..\..\libSBGLpp\GLFW_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\libSBGLpp\OpenGL_Includes.props" />
+    <Import Project="..\..\libSBGLpp\GLFW_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\OpenGL_Includes.props" />
-    <Import Project="..\..\OpenGL_RnD\libSBGLpp\GLFW_Includes.props" />
+    <Import Project="..\..\libSBGLpp\OpenGL_Includes.props" />
+    <Import Project="..\..\libSBGLpp\GLFW_Includes.props" />
     <Import Project="..\Boost_Include.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -87,7 +87,7 @@
       <AdditionalDependencies>libSKTK.lib;libSBGLpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,7 +96,7 @@
       <AdditionalDependencies>libSKTK.lib;libSBGLpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -105,7 +105,7 @@
       <AdditionalDependencies>libSKTK.lib;libSBGLpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -114,7 +114,7 @@
       <AdditionalDependencies>libSKTK.lib;libSBGLpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\OpenGL_RnD\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libSKTK\src;$(SolutionDir)..\libSBGLpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
