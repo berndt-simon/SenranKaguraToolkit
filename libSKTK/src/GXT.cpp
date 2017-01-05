@@ -10,14 +10,13 @@
 namespace GXT {
 	std::string to_string(const Entry_t& entry) {
 		return entry.package + '/' + entry.resource;
-	}
-
+	}	
 
 	void load(std::istream& file, const std::streamoff gxt_start, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, std::vector<Entry_t>& entries_out) {
 		file.seekg(gxt_start, std::ios::beg);
 
 		// Read Header
-		Header_t header;
+		Header_t header{};
 		read(file, &header.size);
 		read(file, &header.resource_count);
 		read(file, &header.container_size);
@@ -44,12 +43,11 @@ namespace GXT {
 			} else {
 				resource_size = (offset_base + header.offsets[res + 1]) - resource_start;
 			}
-			Entry_t entry;
+			Entry_t entry{};
 			entry.package = sub_entries[res].package;
 			entry.resource = sub_entries[res].resource;
 
 			file.seekg(resource_start, std::ios::beg);
-			const std::streamoff curr_pos(file.tellg());
 			entry.data.resize(resource_size);
 			file.read(reinterpret_cast<char*>(entry.data.data()), resource_size);
 			entries_out.push_back(entry);
@@ -62,7 +60,7 @@ namespace GXT {
 		file.seekg(gxt_start, std::ios::beg);
 
 		// Read Header
-		Header_t header;
+		Header_t header{};
 		read(file, &header.size);
 		read(file, &header.resource_count);
 		read(file, &header.container_size);
@@ -87,7 +85,6 @@ namespace GXT {
 			blob_t entry;
 
 			file.seekg(resource_start, std::ios::beg);
-			const std::streamoff curr_pos(file.tellg());
 			entry.resize(resource_size);
 			file.read(reinterpret_cast<char*>(entry.data()), resource_size);
 			entries_out.push_back(entry);

@@ -34,7 +34,7 @@ public:
 	std::string& material_resource_suffix();
 	const std::string& material_resource_suffix() const;
 	
-	virtual void save(const TMD::PostProcessed::Data_t& data) = 0;
+	virtual void save(const TMD::PostProcessed::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) = 0;
 
 protected:
 	bool _export_normals;

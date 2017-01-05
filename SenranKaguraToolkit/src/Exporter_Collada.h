@@ -11,7 +11,7 @@ public:
 	ColladaExporter();
 	~ColladaExporter() = default;
 
-	void save(const TMD::PostProcessed::Data_t& data) override;
+	void save(const TMD::PostProcessed::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) override;
 
 	boost::filesystem::path& dae_suffix();
 	const boost::filesystem::path& dae_suffix() const;
@@ -25,7 +25,7 @@ private:
 	};
 
 	struct Block_t {
-		Block_t(LeftPad_t& padding);
+		explicit Block_t(LeftPad_t& padding);
 		~Block_t();
 
 		LeftPad_t& _padding;
@@ -63,9 +63,9 @@ private:
 	void create_assimp_scene(aiScene& assimp_scene, const TMD::PostProcessed::Data_t& data) const;
 
 	void write_asset_header(PaddedOstream& out) const;
-	void write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
-	void write_library_materials(PaddedOstream& out, const TMD::PostProcessed::Data_t & data) const;
-	void write_library_image(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
+	void write_document(PaddedOstream& out, const TMD::PostProcessed::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) const;
+	void write_library_materials(PaddedOstream& out, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) const;
+	void write_library_image(PaddedOstream& out, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) const;
 
 	void write_geometry(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;
 	void write_geometry_position(PaddedOstream& out, const TMD::PostProcessed::Data_t& data) const;

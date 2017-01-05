@@ -5,7 +5,7 @@
 #include <iomanip>
 
 
-void ObjExporter::save(const TMD::PostProcessed::Data_t& data) {
+void ObjExporter::save(const TMD::PostProcessed::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) {
 	boost::filesystem::path output_path(_export_folder);
 	output_path /= "tmd";
 	boost::filesystem::path obj_filename(output_path);
@@ -22,16 +22,18 @@ void ObjExporter::save(const TMD::PostProcessed::Data_t& data) {
 
 		std::ofstream mtl_out;
 		open_to_write(mtl_out, mtl_filename);
-		write_mtl(mtl_out, data);
+		write_mtl(mtl_out, references);
 		mtl_out.close();
 	}
 }
 
-void ObjExporter::write_mtl(std::ostream& mtl, const TMD::PostProcessed::Data_t& data) {
-	for (const auto& mat : data.materials) {
-		mtl << "newmtl " << mat << std::endl;
+void ObjExporter::write_mtl(std::ostream& mtl, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references) {
+	auto mat_cnt(0);
+	for (const auto& ref : references) {
+		mtl << "newmtl mat_" << mat_cnt << std::endl;
+		++mat_cnt;
 		mtl << "illum 0" << std::endl;
-		mtl << "map_Ka " << _material_resource_prefix << mat.package << "\\" << mat.material_name << _material_resource_suffix << std::endl << std::endl;
+		mtl << "map_Ka " << _material_resource_prefix << ref.package << "\\" << ref.resource << _material_resource_suffix << std::endl << std::endl;
 	}
 }
 
@@ -46,8 +48,7 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PostProcessed::Data_t&
 	}
 	if (_export_uvs) {
 		for (const auto& uv : data.uvs) {
-			const auto uvs = TMD::PostProcessed::Data_t::normalize_uvs(uv);
-			obj << "vt " << uvs[0] << ' ' << uvs[1] << std::endl;
+			obj << "vt " << uv[0] << ' ' << uv[1] << std::endl;
 		}
 	}
 	if (_export_normals) {
@@ -55,8 +56,7 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PostProcessed::Data_t&
 		if (_flip_normals) {
 			flip_fac = -1;
 		}
-		for (const auto& norm : data.normals) {
-			const auto normal = TMD::PostProcessed::Data_t::normalize_normals(norm);
+		for (const auto& normal : data.normals) {
 			obj << "vn ";
 			obj << flip_fac * normal[0] << ' ';
 			obj << flip_fac * normal[1] << ' ';
@@ -68,7 +68,7 @@ void ObjExporter::write_obj(std::ostream& obj, const TMD::PostProcessed::Data_t&
 
 		obj << "g TMD_Mesh_" << std::setfill('0') << std::setw(2) << mIdx << std::endl;
 		if (_export_materials) {
-			obj << "usemtl " << data.materials[mesh.material_id] << std::endl;
+			obj << "usemtl mat_" << static_cast<int>(mesh.material_id) << std::endl;
 		}
 		for (const auto& face : mesh.faces) {
 			obj << "f ";

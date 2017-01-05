@@ -6,7 +6,7 @@
 
 namespace Filename {
 	void load(std::istream& file, std::vector<std::string>& filenames_out) {
-		Header_t header;
+		Header_t header{};
 		read(file, &header);
 		const std::streamoff offset_base(file.tellg());
 		std::vector<uint32_t> offsets;

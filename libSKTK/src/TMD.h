@@ -84,8 +84,7 @@ namespace TMD {
 		};
 
 		struct PolyGroup_t {
-			uint16_t count;
-			uint16_t unknown;
+			uint32_t count;
 			uint32_t offset;
 		};
 
@@ -146,10 +145,11 @@ namespace TMD {
 		};
 
 		struct Mesh_t {
-			std::vector<decltype(RAW::Face_t::vertex_index)> faces;
+			std::vector<std::array<uint16_t, 3>> faces;
 			std::vector<std::array<uint32_t, 4>> bones; 
 			std::vector<std::array<BoneWeight_t, 4>> weights;
 			uint8_t material_id;
+			uint8_t vis_id;
 		};
 
 		struct MaterialEntry_t {
@@ -158,17 +158,12 @@ namespace TMD {
 		};
 
 		struct Data_t {
-			std::vector<decltype(RAW::Vertex_t::pos)> vertices;
-			std::vector<decltype(RAW::Vertex_t::normal)> normals;
-			std::vector<decltype(RAW::Vertex_t::color)> colors;
-			std::vector<decltype(RAW::Vertex_t::tex)> uvs;
-
-			std::vector<MaterialEntry_t> materials;
+			std::vector<std::array<float, 3>> vertices;
+			std::vector<std::array<float, 3>> normals;
+			std::vector<std::array<uint8_t, 4>> colors;
+			std::vector<std::array<float, 2>> uvs;
 
 			std::vector<Mesh_t> meshes;
-
-			static std::array<float, 2> normalize_uvs(const decltype(RAW::Vertex_t::tex)& uvs);
-			static std::array<float, 3> normalize_normals(const decltype(RAW::Vertex_t::normal)& normals);
 		};
 	}
 
@@ -176,9 +171,7 @@ namespace TMD {
 
 	void load_raw(std::istream& file, const std::streamoff tmd_start, RAW::Data_t& data_out);
 
-	void post_process(const RAW::Data_t& data_in, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PostProcessed::Data_t& data_out);
-
-
+	void post_process(const RAW::Data_t& data_in, PostProcessed::Data_t& data_out);
 }
 
 std::ostream& operator<<(std::ostream& out, const TMD::PostProcessed::MaterialEntry_t& material_entry);

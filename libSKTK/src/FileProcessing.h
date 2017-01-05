@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <array>
 
 // Typedef to represent a single Byte
 using byte_t = unsigned char;
@@ -16,6 +17,19 @@ using blob_t = std::vector<byte_t>;
 template<typename T>
 inline void read(std::istream& file, T* dst) {
 	file.read(reinterpret_cast<char*>(dst), sizeof(T));
+}
+
+template<typename T>
+inline T swap_endian(T u) {
+	union {
+		T value;
+		std::array<uint8_t, sizeof(T)> byte;
+	};
+
+	value = u;
+	std::reverse(byte.begin(), byte.end());
+
+	return value;
 }
 
 // Read any Type from a iStream and return the Value by Copy

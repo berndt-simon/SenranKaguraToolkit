@@ -12,7 +12,7 @@
 
 namespace CAT {
 
-	void load(const boost::filesystem::path& file_path, std::istream& file, std::vector<ResourceEntry_t>& entries) {
+	void load(std::istream& file, std::vector<ResourceEntry_t>& entries) {
 		const std::streampos fileStart(file.tellg());
 
 		// Read Header
@@ -90,17 +90,6 @@ namespace CAT {
 					}
 			}
 		} while (file.tellg() < entries[0].offset + fileStart);
-
-#ifdef RENAME_CONV0
-		for (auto& entry : entries) {
-			for (auto& sub_entry : entry.sub_entries) {
-				// "conv0" May be a keyword referencing the current container name
-				if (sub_entry.package.compare("conv0") == 0) {
-					sub_entry.package = archive_name(file_path);
-				}
-			}
-		}
-#endif // RENAME_CONV0	
 	}
 }
 

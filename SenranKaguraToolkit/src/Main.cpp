@@ -59,12 +59,12 @@ static void process_gxt_raw(const boost::filesystem::path& in_file, const boost:
 	}
 }
 
-static void process_tmd(std::istream& file, const std::streamoff offset, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& entries, const boost::filesystem::path& out_folder, uint32_t cntr = 0U) {
+static void process_tmd(std::istream& file, const std::streamoff offset, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& references, const boost::filesystem::path& out_folder, uint32_t cntr = 0U) {
 	using namespace TMD;
 	RAW::Data_t tmd_data_raw;	
 	load_raw(file, offset, tmd_data_raw); 
 	PostProcessed::Data_t tmd_data_pp;
-	post_process(tmd_data_raw, entries, tmd_data_pp);
+	post_process(tmd_data_raw, tmd_data_pp);
 
 #ifdef EXPORTER_OBJ
 	ObjExporter exporter;
@@ -80,7 +80,7 @@ static void process_tmd(std::istream& file, const std::streamoff offset, const s
 	obj_folder_name << "obj_" << std::setfill('0') << std::setw(2) << cntr;
 	exporter.export_folder() /= obj_folder_name.str();
 
-	exporter.save(tmd_data_pp);
+	exporter.save(tmd_data_pp, references);
 #ifdef EXPORTER_OBJ
 	std::cout << "Dumped TMD Resources to Obj " << std::endl;
 #else // EXPORTER_OBJ
@@ -94,7 +94,7 @@ static void process_cat(const boost::filesystem::path& in_file, const boost::fil
 	open_to_read(file, in_file.string());
 	std::vector<CAT::ResourceEntry_t> cat_entries;
 
-	CAT::load(in_file, file, cat_entries);
+	CAT::load(file, cat_entries);
 	uint32_t tmd_cntr(0U);
 	for (const auto& entry : cat_entries) {
 		switch (entry.type) {
@@ -160,11 +160,11 @@ static void process_batch(const boost::filesystem::path& in_file, const boost::f
 			const auto abs_path(boost::filesystem::canonical(line_filename, in_file.parent_path()));
 			try {
 				process_auto(abs_path, out_folder);
-			} catch (const std::exception& e) {
+			} catch (const std::exception&) {
 				std::cerr << "Can't process '" << abs_path << "'!" << std::endl;
 			}
 			
-		} catch (const std::exception& e) {
+		} catch (const std::exception&) {
 			std::cerr << "Can't find  '" << line_filename << "'!" << std::endl;
 		}
 	}

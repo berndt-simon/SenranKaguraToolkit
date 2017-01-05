@@ -63,7 +63,7 @@ namespace TMD {
 		const std::streamoff rig_offset(tmd_start + header.rig_range.start);
 		file.seekg(rig_offset, std::ios::beg);
 		for (auto i(0U); i < header.rig_range.count; ++i) {
-			Rig_t rig;
+			Rig_t rig{};
 			read(file, &rig.count);
 			for (auto& bone : rig.bone) {
 				read(file, &bone);
@@ -84,9 +84,8 @@ namespace TMD {
 		const std::streamoff poly_group_offset(tmd_start + header.poly_group_range.start);
 		file.seekg(poly_group_offset, std::ios::beg);
 		for (auto i(0U); i < header.poly_group_range.count; ++i) {
-			PolyGroup_t poly_group;
+			PolyGroup_t poly_group{};
 			read(file, &poly_group.count);
-			read(file, &poly_group.unknown);
 			read(file, &poly_group.offset);
 			data_out.poly_groups.push_back(poly_group);
 		}
@@ -100,7 +99,7 @@ namespace TMD {
 		const std::streamoff face_offset(tmd_start + header.face_range.start);
 		file.seekg(face_offset, std::ios::beg);
 		for (auto i(0U); i < header.face_range.count; ++i) {
-			Face_t face;
+			Face_t face{};
 			for (auto& index : face.vertex_index) {
 				read(file, &index);
 			}
@@ -116,7 +115,7 @@ namespace TMD {
 		const std::streamoff tex_info_offset(tmd_start + header.tex_info_range.start);
 		file.seekg(tex_info_offset, std::ios::beg);
 		for (auto i(0U); i < header.tex_info_range.count; ++i) {
-			Texture_t tex;
+			Texture_t tex{};
 			read(file, &tex.id);
 			read(file, &tex.blank);
 			read(file, &tex.unknown);
@@ -163,7 +162,7 @@ namespace TMD {
 #endif // DEBUG
 
 		for (auto i(0U); i < header.vertex_range.count; ++i) {
-			Vertex_t vert;
+			Vertex_t vert{};
 			if (fl._position) {
 				for (auto& pos : vert.pos) {
 					read(file, &pos);
@@ -210,7 +209,7 @@ namespace TMD {
 		const std::streamoff bone_hierarchies_offset(tmd_start + header.bone_hierarchy_range.start);
 		file.seekg(bone_hierarchies_offset, std::ios::beg);
 		for (auto i(0U); i < header.bone_hierarchy_range.count; ++i) {
-			BoneHierarchy_t bone_hierarchy;
+			BoneHierarchy_t bone_hierarchy{};
 			read(file, &bone_hierarchy.hash);
 			for (auto& head_pos : bone_hierarchy.head_pos) {
 				read(file, &head_pos);
@@ -229,7 +228,7 @@ namespace TMD {
 		const std::streamoff bones_offset(tmd_start + header.bone_range.start);
 		file.seekg(bones_offset, std::ios::beg);
 		for (auto i(0U); i < header.bone_range.count; ++i) {
-			Bone_t bone;
+			Bone_t bone{};
 			for (auto& row : bone.mat) {
 				for (auto& cell : row) {
 					read(file, &cell);
@@ -247,7 +246,7 @@ namespace TMD {
 		const std::streamoff operation_offset(tmd_start + header.operation_range.start);
 		file.seekg(operation_offset, std::ios::beg);
 		for (auto i(0U); i < header.operation_range.count; ++i) {
-			Operation_t operation;
+			Operation_t operation{};
 			read(file, &operation.value);
 			read(file, &operation.type);
 			data_out.operations.push_back(operation);
@@ -258,7 +257,7 @@ namespace TMD {
 #endif // READ_OPERATIONS
 	}
 
-	void post_process(const RAW::Data_t& data, const std::vector<CAT::ResourceEntry_t::SubEntry_t>& sub_entries, PostProcessed::Data_t& data_out) {
+	void post_process(const RAW::Data_t& data, PostProcessed::Data_t& data_out) {
 		const FeatureLevel_t& fl = data.header.feature_level;
 		// Copy Commons
 		for (auto vIdx(0U); vIdx < data.vertices.size(); ++vIdx) {
@@ -267,30 +266,34 @@ namespace TMD {
 				data_out.vertices.push_back(vert.pos);
 			}
 			if (fl.normals) {
-				data_out.normals.push_back(vert.normal);
+				const auto div(std::numeric_limits<decltype(vert.normal)::value_type>::max());
+				data_out.normals.push_back(std::array<float, 3>{
+					std::max(static_cast<float>(vert.normal[0]) / div, -1.0f),
+						std::max(static_cast<float>(vert.normal[1]) / div, -1.0f),
+						std::max(static_cast<float>(vert.normal[2]) / div, -1.0f)
+				});
 			}
 			if (fl.color) {
 				data_out.colors.push_back(vert.color);
 			}
 			if (fl.uv_0) {
-				data_out.uvs.push_back(vert.tex);
+				data_out.uvs.push_back(std::array<float, 2>{
+					static_cast<float>(vert.tex[0]) / 1024,
+						static_cast<float>(vert.tex[1]) / -1024
+				});
 			}
-		}
-
-		// Copy Materials
-		for (const auto& sub_entry : sub_entries) {
-			data_out.materials.push_back(PostProcessed::MaterialEntry_t({ sub_entry.package, sub_entry.resource }));
 		}
 
 		uint8_t curr_mat(0U);
 		uint8_t curr_rig(0U);
+		uint8_t curr_vis(0U);
 
 
 		for (const auto& operation : data.operations) {
 			switch (operation.type) {
 				case 0x10:
 					{
-						//goto operation_processing_end;
+						++curr_vis;
 						break;
 					}
 				case 0x20:
@@ -300,12 +303,14 @@ namespace TMD {
 					}
 				case 0x30:
 					{
-						PostProcessed::Mesh_t mesh;
+						PostProcessed::Mesh_t mesh {};
 						mesh.material_id = curr_mat;
+						mesh.vis_id = curr_vis;
 
 						// Copy Faces
-						for (auto i(0U); i < data.poly_groups[operation.value].count; ++i) {
-							mesh.faces.push_back(data.faces[data.poly_groups[operation.value].offset + i].vertex_index);
+						const auto& poly_grp(data.poly_groups[operation.value]);
+						for (auto i(0U); i < poly_grp.count; ++i) {
+							mesh.faces.push_back(data.faces[poly_grp.offset + i].vertex_index);
 						}
 
 						for (auto vIdx(0U); vIdx < data.vertices.size(); ++vIdx) {
@@ -317,8 +322,14 @@ namespace TMD {
 									throw std::runtime_error("Bone-Count Mismatch");
 								}
 
-								for (auto b(0U); b < 4U; ++b) {
-									abs_bone_ids[b] = data.rigs[curr_rig].bone[rel_bone_ids[b]];
+								const auto& rig(data.rigs[curr_rig]);
+								for (auto b(0U); b < abs_bone_ids.size(); ++b) {
+									const auto rel_id(rel_bone_ids[b]);
+									if (rel_id < rig.count) {
+										abs_bone_ids[b] = rig.bone[rel_id];
+									} else {
+										abs_bone_ids[b] = 0;
+									}
 								}
 								mesh.bones.push_back(abs_bone_ids);
 
@@ -346,7 +357,6 @@ namespace TMD {
 					}
 			}
 		}
-operation_processing_end:;
 	}
 
 	bool Header_t::verify() {
@@ -413,18 +423,4 @@ void read(std::istream& file, TMD::Header_t* dst) {
 std::ostream& operator<<(std::ostream& out, const TMD::PostProcessed::MaterialEntry_t& material_entry) {
 	out << material_entry.package << '_' << material_entry.material_name;
 	return out;
-}
-
-
-std::array<float, 2> TMD::PostProcessed::Data_t::normalize_uvs(const decltype(RAW::Vertex_t::tex)& uvs) {
-	return std::array<float, 2>{static_cast<float>(uvs[0]) / 1024, static_cast<float>(uvs[1]) / -1024};
-}
-
-
-std::array<float, 3> TMD::PostProcessed::Data_t::normalize_normals(const decltype(RAW::Vertex_t::normal)& normals) {
-	using inner_t = decltype(RAW::Vertex_t::normal)::value_type;
-	return std::array<float, 3>{
-		std::max(static_cast<float>(normals[0]) / std::numeric_limits<inner_t>::max(), -1.0f),
-		std::max(static_cast<float>(normals[1]) / std::numeric_limits<inner_t>::max(), -1.0f),
-		std::max(static_cast<float>(normals[2]) / std::numeric_limits<inner_t>::max(), -1.0f)};
 }
